@@ -34,8 +34,31 @@ func CreateProblem(c *gin.Context) {
 		utils.Fail(c, http.StatusInternalServerError, "创建OJ题目失败: "+err.Error())
 		return
 	}
-
 	utils.Success(c, problem, "OJ题目创建成功")
+}
+
+// UpdateProblem 更新OJ问题
+func UpdateProblem(c *gin.Context) {
+	idStr := c.Param("id")
+	problemId, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		utils.Fail(c, http.StatusBadRequest, "无效的问题ID")
+		return
+	}
+
+	var req dto.OJProblemUpdateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.Fail(c, http.StatusBadRequest, "无效的请求参数: "+err.Error())
+		return
+	}
+
+	problem, err := service.UpdateProblem(uint(problemId), req)
+	if err != nil {
+		utils.Fail(c, http.StatusInternalServerError, "更新OJ题目失败: "+err.Error())
+		return
+	}
+
+	utils.Success(c, problem, "OJ题目更新成功")
 }
 
 // DeleteProblem 删除OJ问题
@@ -56,7 +79,7 @@ func DeleteProblem(c *gin.Context) {
 	utils.Success(c, nil, "OJ题目删除成功")
 }
 
-// CreateTestcase 为问题创建测试用例
+// CreateTestcase 为问题批量创建测试用例
 func CreateTestcase(c *gin.Context) {
 	idStr := c.Param("problem_id")
 	problemId, err := strconv.ParseUint(idStr, 10, 32)
@@ -65,20 +88,30 @@ func CreateTestcase(c *gin.Context) {
 		return
 	}
 
-	var req dto.OJTestcaseCreateRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	// 接收批量创建请求（数组）
+	var batchReq dto.OJTestcaseBatchCreateRequest
+	if err := c.ShouldBindJSON(&batchReq); err != nil {
 		utils.Fail(c, http.StatusBadRequest, "无效的请求参数: "+err.Error())
 		return
 	}
 
-	req.ProblemId = uint(problemId)
-	testcase, err := service.CreateTestcase(req)
-	if err != nil {
-		utils.Fail(c, http.StatusInternalServerError, "创建测试用例失败: "+err.Error())
-		return
+	// 批量创建测试用例
+	var createdTestcases []interface{}
+	for _, item := range batchReq {
+		req := dto.OJTestcaseCreateRequest{
+			ProblemId: uint(problemId),
+			Input:     item.Input,
+			Output:    item.Output,
+		}
+		testcase, err := service.CreateTestcase(req)
+		if err != nil {
+			utils.Fail(c, http.StatusInternalServerError, "创建测试用例失败: "+err.Error())
+			return
+		}
+		createdTestcases = append(createdTestcases, testcase)
 	}
 
-	utils.Success(c, testcase, "测试用例创建成功")
+	utils.Success(c, createdTestcases, "批量测试用例创建成功")
 }
 
 // SubmitCode 提交代码进行评测

@@ -93,7 +93,7 @@ export const OJ_ACTION_BUTTONS: OJActionButton[] = [
     bgColor: 'bg-blue-50',
     textColor: 'text-blue-600',
     hoverBg: 'hover:bg-blue-100',
-    handler: 'handleEditProblem',
+    handler: 'handleEdit',
   },
   {
     type: 'preview',

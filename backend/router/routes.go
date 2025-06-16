@@ -57,6 +57,7 @@ func SetupRoutes(r *gin.Engine) {
 		oj.GET("/problems", controller.GetAllProblems)
 		oj.GET("/problems/:id", controller.GetProblemByID) // 新增：根据ID获取题目
 		oj.POST("/problem", controller.CreateProblem)
+		oj.PUT("/problem/:id", controller.UpdateProblem)   // 新增：更新题目
 		oj.DELETE("/problem/:id", controller.DeleteProblem)
 		oj.POST("/testcase/:problem_id", controller.CreateTestcase)
 		oj.GET("/testcase/:problem_id", controller.GetTestcases) // 新增：获取测试用例

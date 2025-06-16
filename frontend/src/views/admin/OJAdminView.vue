@@ -7,6 +7,7 @@ import { api } from '@/api'
 import type { OJProblem, OJTestCase, OJRequest, Result } from '@/types/api'
 import AdminModal from '@/components/admin/AdminModal.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
+import { FormLayout, FormGroup, FormInput, FormTextarea, FormSelect, FormActions } from '@/components/form'
 import { OJ_ACTION_BUTTONS, OJ_MESSAGES } from '@/config/oj-admin'
 import { FileHandler, TestCaseUtils, ZipExporter } from '@/utils/oj-admin'
 
@@ -52,6 +53,7 @@ const {
   errorMessage,
   showForm: showProblemForm,
   handleCreate: createProblem,
+  handleUpdate: updateProblem,
   handleDelete: deleteProblem,
   loadItems: loadProblems
 } = useAdminCrud<OJProblem>({
@@ -77,6 +79,32 @@ const {
     }
     return status ? { id: Date.now(), ...problem } : Promise.reject('创建题目失败')
   },
+  update: async (id, problem) => {
+    // 确保必需的字段存在，转换为 OJRequest 格式
+    const ojRequest: OJRequest = {
+      title: problem.title || '',
+      description: problem.description || '',
+      difficulty: problem.difficulty || 'Easy',
+      timeLimit: problem.timeLimit || 1000,
+      memoryLimit: problem.memoryLimit || 128
+    }
+    const { status } = await api.putOJProblem(id, ojRequest)
+    if (status) {
+      clearCache() // 清除缓存
+      // 返回更新后的完整对象
+      return {
+        id,
+        title: ojRequest.title,
+        description: ojRequest.description,
+        difficulty: ojRequest.difficulty,
+        timeLimit: ojRequest.timeLimit,
+        memoryLimit: ojRequest.memoryLimit,
+        createdAt: problem.createdAt || '',
+        updatedAt: new Date().toISOString()
+      } as OJProblem
+    }
+    return Promise.reject('更新题目失败')
+  },
   delete: async (id) => {
     const { status } = await api.deleteOJProblem(id)
     if (status) {
@@ -90,8 +118,10 @@ const {
 const showTestCaseForm = ref(false)
 const showTestCaseView = ref(false)
 const showContentPreview = ref(false)
+const showEditForm = ref(false)
 const currentProblemId = ref<number | null>(null)
 const previewContent = ref('')
+const editingProblem = ref<OJProblem | null>(null)
 const newProblem = ref<Omit<OJProblem, 'id'>>({
   title: '',
   description: '',
@@ -262,6 +292,11 @@ const actions = {
     viewTestCases(problem.id)
   },
 
+  handleEdit: (problem: OJProblem) => {
+    editingProblem.value = { ...problem }
+    showEditForm.value = true
+  },
+
   handleDelete: (problem: OJProblem, event?: Event) => {
     if (event) event.preventDefault()
     problemToDelete.value = problem
@@ -269,11 +304,36 @@ const actions = {
   }
 }
 
+// 编辑相关函数
+const saveEditProblem = async () => {
+  if (!editingProblem.value) return
+
+  try {
+    await updateProblem(editingProblem.value.id, editingProblem.value)
+    showEditForm.value = false
+    editingProblem.value = null
+  } catch (error) {
+    console.error('更新题目失败:', error)
+  }
+}
+
+const cancelEdit = () => {
+  showEditForm.value = false
+  editingProblem.value = null
+}
+
 // Action dispatcher
 const handleAction = (actionType: string, problem: OJProblem, event?: Event) => {
   const handler = actions[actionType as keyof typeof actions]
   if (handler) handler(problem, event)
 }
+
+// 表单选项数据
+const difficultyOptions = [
+  { value: 'Easy', label: '简单', disabled: false },
+  { value: 'Medium', label: '中等', disabled: false },
+  { value: 'Hard', label: '困难', disabled: false }
+]
 
 loadProblems()
 
@@ -342,7 +402,7 @@ const executeSingleDelete = async () => {
     </div>
 
     <!-- v4.0 搜索栏 -->
-    <div class="relative">
+    <div class="relative max-w-md">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         <MagnifyingGlassIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
       </div>
@@ -522,56 +582,195 @@ const executeSingleDelete = async () => {
 
   <!-- 模态框 -->
   <AdminModal v-model="showProblemForm" title="新建题目" width="xl" :loading="isLoading">
-    <div class="space-y-6">
-      <div>
-        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">标题</label>
-        <input v-model="newProblem.title"
-          class="block w-3/4 mx-auto text-sm px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-800 dark:text-white transition-colors"
-          placeholder="请输入题目标题" />
-      </div>
+    <FormLayout variant="default">
+      <!-- 基本信息分组 -->
+      <FormGroup title="基本信息" subtitle="设置题目的基本属性">
+        <FormInput
+          v-model="newProblem.title"
+          label="题目标题"
+          name="title"
+          placeholder="请输入题目标题"
+          required
+          width="lg"
+          help="建议标题简洁明了，描述题目核心要求"
+        />
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">难度级别</label>
-          <select v-model="newProblem.difficulty"
-            class="block w-full text-sm px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-800 dark:text-white transition-colors">
-            <option value="Easy">简单</option>
-            <option value="Medium">中等</option>
-            <option value="Hard">困难</option>
-          </select>
-        </div>
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">时间限制 (ms)</label>
-          <input v-model.number="newProblem.timeLimit" type="number" min="100" max="10000" step="100"
-            class="block w-full text-sm px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-800 dark:text-white transition-colors"
-            placeholder="1000" />
-        </div>
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">内存限制 (MB)</label>
-          <input v-model.number="newProblem.memoryLimit" type="number" min="16" max="512" step="16"
-            class="block w-full text-sm px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-800 dark:text-white transition-colors"
-            placeholder="128" />
-        </div>
-      </div>
+        <FormLayout :columns="3" gap="md">
+          <FormSelect
+            v-model="newProblem.difficulty"
+            label="难度级别"
+            name="difficulty"
+            :options="difficultyOptions"
+            required
+          />
 
-      <div>
-        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">题目内容 (支持Markdown)</label>
-        <textarea v-model="newProblem.description"
-          class="block w-3/4 mx-auto h-48 text-sm px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-800 dark:text-white transition-colors resize-none"
-          placeholder="请输入题目内容，支持Markdown格式"></textarea>
-      </div>
-    </div>
+          <FormInput
+            v-model.number="newProblem.timeLimit"
+            label="时间限制"
+            name="timeLimit"
+            type="number"
+            placeholder="1000"
+            :min="100"
+            :max="10000"
+            :step="100"
+            help="单位：毫秒"
+            required
+          />
+
+          <FormInput
+            v-model.number="newProblem.memoryLimit"
+            label="内存限制"
+            name="memoryLimit"
+            type="number"
+            placeholder="128"
+            :min="16"
+            :max="512"
+            :step="16"
+            help="单位：MB"
+            required
+          />
+        </FormLayout>
+      </FormGroup>
+
+      <!-- 题目内容分组 -->
+      <FormGroup title="题目内容" subtitle="编写题目描述，支持 Markdown 语法">
+        <FormTextarea
+          v-model="newProblem.description"
+          label="题目描述"
+          name="description"
+          placeholder="请输入题目内容，支持 Markdown 格式
+
+示例：
+## 题目描述
+给定一个整数数组 nums 和一个目标值 target...
+
+### 输入格式
+- 第一行包含一个整数 n，表示数组长度
+- 第二行包含 n 个整数，表示数组元素
+
+### 输出格式
+输出一个整数，表示结果
+
+### 样例输入
+```
+5
+1 2 3 4 5
+```
+
+### 样例输出
+```
+15
+```"
+          :rows="16"
+          resize="vertical"
+          required
+          help="支持 Markdown 语法，包括代码块、表格、列表等"
+        />
+      </FormGroup>
+    </FormLayout>
+
     <template #footer>
-      <div class="flex justify-end space-x-3">
-        <button @click="showProblemForm = false"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">
+      <FormActions align="right">
+        <button @click="showProblemForm = false" type="button"
+          class="px-6 py-2.5 text-gray-700 dark:text-gray-300
+                 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600
+                 hover:bg-gray-200 dark:hover:bg-gray-600
+                 rounded-lg transition-colors font-medium
+                 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
           取消
         </button>
-        <button @click="createProblem(newProblem)"
-          class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
-          保存
+        <button @click="createProblem(newProblem)" type="button"
+          class="px-6 py-2.5 text-white bg-purple-600 border border-purple-600
+                 hover:bg-purple-700 focus:bg-purple-700
+                 rounded-lg transition-colors font-medium
+                 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+          创建题目
         </button>
-      </div>
+      </FormActions>
+    </template>
+  </AdminModal>
+
+  <!-- 编辑题目模态框 -->
+  <AdminModal v-model="showEditForm" title="编辑题目" width="xl" :loading="isLoading">
+    <FormLayout variant="default" v-if="editingProblem">
+      <!-- 基本信息分组 -->
+      <FormGroup title="基本信息" subtitle="修改题目的基本属性">
+        <FormInput
+          v-model="editingProblem.title"
+          label="题目标题"
+          name="edit-title"
+          placeholder="请输入题目标题"
+          required
+          width="lg"
+        />
+
+        <FormLayout :columns="3" gap="md">
+          <FormSelect
+            v-model="editingProblem.difficulty"
+            label="难度级别"
+            name="edit-difficulty"
+            :options="difficultyOptions"
+            required
+          />
+
+          <FormInput
+            v-model.number="editingProblem.timeLimit"
+            label="时间限制"
+            name="edit-timeLimit"
+            type="number"
+            :min="100"
+            :max="10000"
+            :step="100"
+            help="单位：毫秒"
+            required
+          />
+
+          <FormInput
+            v-model.number="editingProblem.memoryLimit"
+            label="内存限制"
+            name="edit-memoryLimit"
+            type="number"
+            :min="16"
+            :max="512"
+            :step="16"
+            help="单位：MB"
+            required
+          />
+        </FormLayout>
+      </FormGroup>
+
+      <!-- 题目内容分组 -->
+      <FormGroup title="题目内容" subtitle="修改题目描述，支持 Markdown 语法">
+        <FormTextarea
+          v-model="editingProblem.description"
+          label="题目描述"
+          name="edit-description"
+          :rows="16"
+          resize="vertical"
+          required
+          help="支持 Markdown 语法，包括代码块、表格、列表等"
+        />
+      </FormGroup>
+    </FormLayout>
+
+    <template #footer>
+      <FormActions align="right">
+        <button @click="cancelEdit" type="button"
+          class="px-6 py-2.5 text-gray-700 dark:text-gray-300
+                 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600
+                 hover:bg-gray-200 dark:hover:bg-gray-600
+                 rounded-lg transition-colors font-medium
+                 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+          取消
+        </button>
+        <button @click="saveEditProblem" type="button"
+          class="px-6 py-2.5 text-white bg-purple-600 border border-purple-600
+                 hover:bg-purple-700 focus:bg-purple-700
+                 rounded-lg transition-colors font-medium
+                 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+          保存修改
+        </button>
+      </FormActions>
     </template>
   </AdminModal>
 

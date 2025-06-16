@@ -9,6 +9,15 @@ type OJProblemCreateRequest struct {
 	MemoryLimit int    `json:"memoryLimit"`
 }
 
+// OJProblemUpdateRequest 更新OJ问题请求
+type OJProblemUpdateRequest struct {
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	Difficulty  string `json:"difficulty" binding:"required"`
+	TimeLimit   int    `json:"timeLimit"`
+	MemoryLimit int    `json:"memoryLimit"`
+}
+
 // OJProblemResponse OJ问题响应
 type OJProblemResponse struct {
 	ID          uint   `json:"id"`
@@ -26,6 +35,12 @@ type OJTestcaseCreateRequest struct {
 	ProblemId uint   `json:"problemId" binding:"required"`
 	Input     string `json:"input"`
 	Output    string `json:"output"`
+}
+
+// OJTestcaseBatchCreateRequest 批量创建测试用例请求
+type OJTestcaseBatchCreateRequest []struct {
+	Input  string `json:"input"`
+	Output string `json:"output"`
 }
 
 // OJTestcaseResponse 测试用例响应

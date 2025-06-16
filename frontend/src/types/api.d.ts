@@ -100,4 +100,4 @@ export interface MultiJudgeResult {
   results: JudgeResult[]
 }
 
-export type JudgeStatusMsg = JudgeResult['msg']
+// Removed JudgeStatusMsg type because JudgeResult does not have a 'msg' property

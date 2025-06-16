@@ -87,6 +87,43 @@ func CreateProblem(req dto.OJProblemCreateRequest) (*dto.OJProblemResponse, erro
 		TimeLimit:   problem.TimeLimit,
 		MemoryLimit: problem.MemoryLimit,
 		CreatedAt:   problem.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt:   problem.UpdatedAt.Format("2006-01-02 15:04:05"),	}, nil
+}
+
+// UpdateProblem 更新OJ问题
+func UpdateProblem(problemId uint, req dto.OJProblemUpdateRequest) (*dto.OJProblemResponse, error) {
+	var problem entity.OJProblem
+	if err := config.DB.First(&problem, problemId).Error; err != nil {
+		return nil, err
+	}
+
+	// 更新字段
+	problem.Title = req.Title
+	problem.Description = req.Description
+	problem.Difficulty = req.Difficulty
+	problem.TimeLimit = req.TimeLimit
+	problem.MemoryLimit = req.MemoryLimit
+
+	// 设置默认值
+	if problem.TimeLimit == 0 {
+		problem.TimeLimit = 1000
+	}
+	if problem.MemoryLimit == 0 {
+		problem.MemoryLimit = 256
+	}
+
+	if err := config.DB.Save(&problem).Error; err != nil {
+		return nil, err
+	}
+
+	return &dto.OJProblemResponse{
+		ID:          problem.ID,
+		Title:       problem.Title,
+		Description: problem.Description,
+		Difficulty:  problem.Difficulty,
+		TimeLimit:   problem.TimeLimit,
+		MemoryLimit: problem.MemoryLimit,
+		CreatedAt:   problem.CreatedAt.Format("2006-01-02 15:04:05"),
 		UpdatedAt:   problem.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}, nil
 }

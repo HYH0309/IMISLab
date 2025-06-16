@@ -29,7 +29,7 @@ const handleSubmit = () => {
       <!-- 用户名输入 -->
       <div class="flex gap-2">
         <input v-model="author" type="text" placeholder="输入您的昵称..."
-          class="flex-1 px-4 py-2 rounded-lg border border-border/30 focus:outline-none focus:ring-2 focus:ring-primary/50 bg-white dark:bg-gray-8 text-gray-9 dark:text-gray-1">
+          class="flex-1 max-w-sm px-4 py-2 rounded-lg border border-border/30 focus:outline-none focus:ring-2 focus:ring-primary/50 bg-white dark:bg-gray-8 text-gray-9 dark:text-gray-1">
       </div>
 
       <!-- 评论内容输入 -->

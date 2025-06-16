@@ -43,9 +43,9 @@ watch(searchTitle, (val) => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
-        <input 
-          v-model="searchTitle" 
-          class="search-input" 
+        <input
+          v-model="searchTitle"
+          class="search-input"
           placeholder="搜索文章标题...输入关键词快速查找"
           autocomplete="off"
           spellcheck="false">
@@ -55,7 +55,7 @@ watch(searchTitle, (val) => {
           </svg>
         </div>
       </div>
-      
+
       <!-- 搜索建议/状态 -->
       <div v-if="searchTitle" class="search-status">
         <span class="status-text">正在搜索 "{{ searchTitle }}"</span>
@@ -73,9 +73,9 @@ watch(searchTitle, (val) => {
             ({{ selectedTags.length }} 个已选择)
           </span>
         </div>
-        
-        <button 
-          v-if="selectedTags.length > 0" 
+
+        <button
+          v-if="selectedTags.length > 0"
           @click="clearAllTags"
           class="clear-all-btn">
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,11 +84,11 @@ watch(searchTitle, (val) => {
           清空选择
         </button>
       </div>
-      
+
       <div class="tags-grid">
-        <button 
-          v-for="tag in availableTags" 
-          :key="tag" 
+        <button
+          v-for="tag in availableTags"
+          :key="tag"
           @click="toggleTag(tag)"
           :class="['tag-btn', { 'tag-active': selectedTags.includes(tag) }]">
           <span class="tag-text">{{ tag }}</span>
@@ -115,7 +115,7 @@ watch(searchTitle, (val) => {
 }
 
 .search-wrapper {
-  @apply relative max-w-2xl mx-auto;
+  @apply relative max-w-md mx-auto;
 }
 
 .search-icon {
@@ -246,19 +246,19 @@ watch(searchTitle, (val) => {
   .search-input {
     @apply text-base py-3;
   }
-  
+
   .tags-header {
     @apply flex-col items-start space-y-2;
   }
-  
+
   .tags-grid {
     @apply gap-2;
   }
-  
+
   .tag-btn {
     @apply px-3 py-2 text-xs;
   }
-  
+
   .tag-text {
     @apply max-w-[6rem];
   }
@@ -290,11 +290,11 @@ watch(searchTitle, (val) => {
   .search-input {
     @apply border-gray-900 dark:border-gray-100;
   }
-  
+
   .tag-btn {
     @apply border-gray-900 dark:border-gray-100;
   }
-  
+
   .tag-active {
     @apply bg-black dark:bg-white text-white dark:text-black;
   }

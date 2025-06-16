@@ -13,7 +13,7 @@ import type {
   JudgeResult,
   JudgeRequest,
 } from '@/types/api'
-import { http } from './http.ts'
+import { http } from './http'
 import type { AxiosResponse, AxiosError } from 'axios'
 
 async function request<T>(promise: Promise<AxiosResponse<Result<T>>>): Promise<Result<T>> {
@@ -143,6 +143,15 @@ export const api = {
    * @returns Promise<null> 删除成功返回null
    */
   deleteOJProblem: (id: number) => request<null>(http.delete(`/oj/problem/${id}`)),
+
+  /**
+   * 更新OJ题目
+   * @param id 题目ID
+   * @param problem 题目内容对象(OJRequest类型)
+   * @returns Promise<null> 更新成功返回null
+   */
+  putOJProblem: (id: number, problem: OJRequest) =>
+    request<null>(http.put(`/oj/problem/${id}`, problem)),
 
   /**
    * 为指定题目添加测试用例

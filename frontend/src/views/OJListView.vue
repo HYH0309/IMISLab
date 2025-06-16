@@ -16,7 +16,7 @@ const searchHistory = ref<string[]>([])
 const searchSuggestions = computed(() => {
   const titles = problems.value.map(p => p.title)
   const ids = problems.value.map(p => p.id.toString())
-  return [...new Set([...titles, ...ids, ...searchHistory.value])].filter(Boolean)
+  return Array.from(new Set([...titles, ...ids, ...searchHistory.value])).filter(Boolean)
 })
 
 onMounted(async () => {
@@ -26,7 +26,7 @@ onMounted(async () => {
     console.log('OJ API响应:', res)
     console.log('响应状态:', res.status)
     console.log('响应数据:', res.data)
-    
+
     if (res.status && res.data) {
       problems.value = res.data
       console.log('设置后的problems.value:', problems.value)
