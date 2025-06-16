@@ -1,0 +1,75 @@
+﻿# Dependencies
+frontend/node_modules/
+backend/vendor/
+
+# Build outputs
+frontend/dist/
+backend/*.exe
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# IDEs
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Go specific
+backend/*.test
+backend/*.out
+backend/go.work
+backend/go.work.sum
+
+# Frontend specific
+frontend/.nuxt
+frontend/.output
+frontend/.cache
+frontend/.parcel-cache
+frontend/.next
+frontend/test-results/
+frontend/playwright-report/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Upload directories
+uploads/
+backend/uploads/
+
+# Temporary files
+*.tmp
+*.temp

@@ -1,0 +1,209 @@
+/* styles/theme.css */
+:root {
+  /* 亮色主题 - 基础颜色 */
+  --text: 222.2 47.4% 11.2%;
+  --text-muted: 215.4 16.3% 46.9%;
+  --text-hover: 222.2 47.4% 15%;
+  --text-active: 222.2 47.4% 20%;
+  --primary: 210 100% 50%;
+  --primary-hover: 210 100% 45%;
+  --primary-active: 210 100% 40%;
+  --primary-disabled: 210 30% 70%;
+
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
+
+  /* 亮色主题 - 辅助颜色 */
+  --muted: 210 20% 96%;
+  --muted-hover: 210 20% 92%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  /* 亮色主题 - 边框与交互 */
+  --border: 214.3 31.8% 91.4%;
+  --border-hover: 214.3 31.8% 85%;
+  --radius: 0.5rem;
+
+  /* 亮色主题 - 状态颜色 */
+  --success: 142 71% 45%;
+  --success-hover: 142 71% 40%;
+  --success-active: 142 71% 35%;
+  --success-disabled: 142 30% 70%;
+  --warning: 38 92% 50%;
+  --warning-hover: 38 92% 45%;
+  --warning-active: 38 92% 40%;
+  --warning-disabled: 38 30% 70%;
+  --danger: 0 84% 60%;
+  --danger-hover: 0 84% 55%;
+  --danger-active: 0 84% 50%;
+  --danger-disabled: 0 30% 70%;
+
+  /* 亮色主题 - 特殊效果 */
+  --gradient-from: 210 100% 50%;
+  --gradient-to: 262 90% 56%;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+
+  /* Z-Index 层级管理 */
+  --z-base: 1;
+  --z-content: 5;
+  --z-route-loading: 10;
+  --z-dropdown: 15;
+  --z-tooltip: 20;
+  --z-theme-toggle: 30;
+  --z-navbar: 40;
+  --z-music-player: 50;
+  --z-modal-backdrop: 60;
+  --z-modal: 70;
+  --z-notification: 80;
+  --z-popover: 85;
+  --z-loading: 95;
+  --z-error: 100;
+}
+
+.dark {
+  /* 暗色主题 - 基础颜色 */
+  --text: 210 20% 98%;
+  --text-muted: 215 20.2% 65.1%;
+  --text-hover: 210 20% 95%;
+  --text-active: 210 20% 90%;
+  --primary: 210 80% 60%;
+  --primary-hover: 210 85% 55%;
+  --primary-active: 210 85% 50%;
+  --primary-disabled: 210 30% 40%;
+
+  --background: 222.2 47.4% 11.2%;
+  --foreground: 210 20% 98%;
+
+  /* 暗色主题 - 辅助颜色 */
+  --muted: 217.2 32.6% 17.5%;
+  --muted-hover: 217.2 32.6% 22%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  /* 暗色主题 - 边框与交互 */
+  --border: 216 34% 17%;
+  --border-hover: 216 34% 22%;
+
+  /* 暗色主题 - 状态颜色 */
+  --success: 142 71% 55%;
+  --success-hover: 142 71% 50%;
+  --success-active: 142 71% 45%;
+  --success-disabled: 142 30% 40%;
+  --warning: 38 92% 60%;
+  --warning-hover: 38 92% 55%;
+  --warning-active: 38 92% 50%;
+  --warning-disabled: 38 30% 40%;
+  --danger: 0 84% 70%;
+  --danger-hover: 0 84% 65%;
+  --danger-active: 0 84% 60%;
+  --danger-disabled: 0 30% 40%;
+
+  /* 暗色主题 - 特殊效果 */
+  --gradient-from: 210 80% 60%;
+  --gradient-to: 262 70% 56%;
+  --shadow: 0 2px 12px rgba(255, 255, 255, 0.1);
+  --shadow-md: 0 4px 16px rgba(255, 255, 255, 0.08);
+  --shadow-lg: 0 8px 32px rgba(255, 255, 255, 0.12);
+}
+
+/* 基础过渡效果 */
+html {
+  color-scheme: light dark;
+  transition:
+    color 300ms ease,
+    background-color 300ms ease;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* 扩展主题相关类 */
+.bg-gradient-primary {
+  background-image: linear-gradient(to right,
+      hsl(var(--gradient-from)),
+      hsl(var(--gradient-to)));
+}
+
+.bg-muted {
+  background-color: hsl(var(--muted));
+}
+
+.text-muted {
+  color: hsl(var(--muted-foreground));
+}
+
+/* 主题切换动画 */
+@keyframes star-twinkle {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+@keyframes moon-float {
+  0% {
+    transform: translateY(0) rotate(-15deg);
+  }
+
+  50% {
+    transform: translateY(-3px) rotate(15deg);
+  }
+
+  100% {
+    transform: translateY(0) rotate(-15deg);
+  }
+}
+
+.theme-toggle-icon {
+  transition: all 500ms ease;
+}
+
+.theme-toggle-icon.animate {
+  transform: scale(1.25);
+}
+
+.theme-toggle-icon.light.animate {
+  transform: scale(0.75) rotate(-12deg);
+}
+
+.theme-toggle-icon.dark.animate {
+  transform: scale(1.25) rotate(12deg);
+}
+
+.theme-toggle-btn:hover .ion\:star-sharp {
+  animation: star-twinkle 1.5s infinite;
+}
+
+.theme-toggle-btn:hover .ion\:moon-sharp {
+  animation: moon-float 2s ease-in-out infinite;
+}
+
+
+
+
+html {
+  position: relative;
+  overflow: auto;
+  scroll-snap-type: y mandatory;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/* 确保body也有正确的定位 */
+body {
+  position: relative;
+}
