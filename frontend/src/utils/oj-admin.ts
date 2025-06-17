@@ -3,18 +3,9 @@
  * 与后端接口完全对齐
  */
 
-import { api } from '@/api'
 import { http } from '@/api/http'
 import type { Result, OJTestCase } from '@/types/api'
-import type {
-  OJTestCaseCreateRequest,
-  OJProblem,
-  OJProblemCreateRequest,
-  FileMapEntry,
-  JudgeResult,
-  CodeSubmitRequest,
-  ApiResponse,
-} from '@/types/oj-admin'
+import type { OJTestCaseCreateRequest, FileMapEntry } from '@/types/oj-admin'
 import { OJ_CONFIG, OJ_MESSAGES } from '@/config/oj-admin'
 
 /**
@@ -218,13 +209,14 @@ export class TestCaseUtils {
 /**
  * ZIP 文件导出工具
  */
+import * as JSZip from 'jszip'
+
 export class ZipExporter {
   /**
    * 导出测试用例为 ZIP 文件
    */
   static async exportTestCases(testCases: OJTestCase[]): Promise<void> {
     try {
-      const { default: JSZip } = await import('jszip')
       const zip = new JSZip()
 
       testCases.forEach((testCase, index) => {

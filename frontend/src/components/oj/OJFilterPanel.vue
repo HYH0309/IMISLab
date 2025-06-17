@@ -131,7 +131,7 @@ function onKeydown(e: KeyboardEvent) {
 <style scoped>
 /* 搜索容器 */
 .search-container {
-  @apply relative w-full max-w-md mx-auto;
+  @apply relative w-full max-w-2xl mx-auto;
 }
 
 /* 搜索框包装器 */

@@ -64,10 +64,10 @@ const statsHistory = ref<Array<{
 // 计算性能得分
 const performanceScore = computed(() => {
   if (performanceMetrics.value.totalFetches === 0) return 100
-  
+
   const successRate = (performanceMetrics.value.totalFetches - performanceMetrics.value.failureCount) / performanceMetrics.value.totalFetches
   const speedScore = Math.max(0, 100 - (performanceMetrics.value.averageFetchTime / 100))
-  
+
   return Math.round((successRate * 0.7 + speedScore * 0.3) * 100)
 })
 
@@ -85,10 +85,10 @@ const hasError = computed(() => !!errorState.value)
 // 格式化最后更新时间
 const formatLastUpdateTime = computed(() => {
   if (!lastFetchTime.value) return ''
-  
+
   const now = Date.now()
   const diff = now - lastFetchTime.value
-  
+
   if (diff < 60000) { // 1分钟内
     return '刚刚'
   } else if (diff < 3600000) { // 1小时内
@@ -115,11 +115,11 @@ const fetchStats = async (retryCount = 0) => {
   const maxRetries = 3
   const startTime = performance.now()
   isLoading.value = true
-  
+
   try {
     // 更新性能指标
     performanceMetrics.value.totalFetches++
-    
+
     // 使用 Promise.allSettled 并行获取数据，避免单个失败影响整体
     const [articlesResult, tagsResult, ojProblemsResult] = await Promise.allSettled([
       api.getArticles(),
@@ -157,27 +157,27 @@ const fetchStats = async (retryCount = 0) => {
       tags: statsData.value[1].value,
       ojProblems: statsData.value[2].value
     })
-    
+
     // 记录统计历史
     recordStatsHistory()
-    
+
     // 更新性能指标
     const endTime = performance.now()
     performanceMetrics.value.lastFetchDuration = endTime - startTime
-    performanceMetrics.value.averageFetchTime = 
-      (performanceMetrics.value.averageFetchTime * (performanceMetrics.value.totalFetches - 1) + 
+    performanceMetrics.value.averageFetchTime =
+      (performanceMetrics.value.averageFetchTime * (performanceMetrics.value.totalFetches - 1) +
        performanceMetrics.value.lastFetchDuration) / performanceMetrics.value.totalFetches
   } catch (error) {
     console.error('获取统计数据失败:', error)
     performanceMetrics.value.failureCount++
-    
+
     // 错误重试机制
     if (retryCount < maxRetries) {
       console.log(`重试获取统计数据 (${retryCount + 1}/${maxRetries})`)
       setTimeout(() => fetchStats(retryCount + 1), 1000 * (retryCount + 1))
       return
     }
-    
+
     // 最大重试次数后的错误处理
     errorState.value = '数据加载失败，请稍后重试。'
   } finally {
@@ -190,7 +190,7 @@ const fetchStatsIfNeeded = async (force = false) => {
   if (!force && !shouldRefreshData.value) {
     return // 缓存仍有效，无需刷新
   }
-  
+
   await fetchStats()
 }
 
@@ -204,7 +204,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
       currentTab.value = parseInt(key) - 1
     }
   }
-  
+
   // F5 或 Ctrl/Cmd + R 刷新数据
   if (event.key === 'F5' || ((event.ctrlKey || event.metaKey) && event.key === 'r')) {
     if (!event.shiftKey) { // 避免硬刷新页面
@@ -223,7 +223,7 @@ const handleStatClick = async (statLabel: string) => {
   } else if (statLabel === 'OJ题目数') {
     currentTab.value = 2 // 切换到OJ管理
   }
-  
+
   // 智能刷新：只在必要时重新获取数据
   await fetchStatsIfNeeded()
 }
@@ -239,7 +239,7 @@ const exportStats = () => {
       color: stat.color
     }))
   }
-  
+
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -254,7 +254,7 @@ const exportStats = () => {
 // 切换实时监控
 const toggleMonitoring = () => {
   monitoringEnabled.value = !monitoringEnabled.value
-  
+
   if (monitoringEnabled.value) {
     // 开启自动刷新（每30秒）
     monitoringInterval.value = window.setInterval(() => {
@@ -281,7 +281,7 @@ const recordStatsHistory = () => {
       ojProblems: statsData.value[2].value
     }
   })
-  
+
   // 只保留最近100条记录
   if (statsHistory.value.length > 100) {
     statsHistory.value = statsHistory.value.slice(-100)
@@ -296,16 +296,16 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyDown)
-  
+
   // 清理监控定时器
   if (monitoringInterval.value) {
     clearInterval(monitoringInterval.value)
     monitoringInterval.value = null
   }
-  
+
   // 清理历史数据
   statsHistory.value = []
-  
+
   // 关闭监控状态
   monitoringEnabled.value = false
 })
@@ -361,7 +361,7 @@ onUnmounted(() => {
             </button>
             <!-- 自动刷新状态指示器 -->
             <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400" role="status" aria-live="polite">
-              <div :class="['w-2 h-2 rounded-full', shouldRefreshData ? 'bg-orange-400' : 'bg-green-400']" 
+              <div :class="['w-2 h-2 rounded-full', shouldRefreshData ? 'bg-orange-400' : 'bg-green-400']"
                    :aria-label="shouldRefreshData ? '数据需要更新' : '数据为最新状态'"></div>
               <span>{{ shouldRefreshData ? '需要更新' : '数据最新' }}</span>
             </div>
@@ -383,8 +383,8 @@ onUnmounted(() => {
             <button @click="toggleMonitoring"
                     :class="[
                       'px-2 py-1 rounded-lg text-xs transition-all duration-200',
-                      monitoringEnabled 
-                        ? 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200' 
+                      monitoringEnabled
+                        ? 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200'
                         : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
                       'hover:scale-105'
                     ]"
@@ -400,7 +400,7 @@ onUnmounted(() => {
     </header>
 
     <!-- 错误状态 -->
-    <div v-if="hasError && !isLoading" 
+    <div v-if="hasError && !isLoading"
          class="max-w-7xl mx-auto px-6 py-4 mb-6"
          role="alert"
          aria-live="assertive">
@@ -436,7 +436,7 @@ onUnmounted(() => {
         <div class="flex items-center justify-between mb-3">
           <h3 :class="['text-sm font-medium', BASE_CLASSES.heading]" id="performance-title">性能监控面板</h3>
           <div class="flex items-center gap-2">
-            <div :class="['px-2 py-1 rounded text-xs', 
+            <div :class="['px-2 py-1 rounded text-xs',
                          performanceScore >= 80 ? 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200' :
                          performanceScore >= 60 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200' :
                          'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200']"
@@ -466,7 +466,7 @@ onUnmounted(() => {
             <div :class="[BASE_CLASSES.subtext]">总请求数</div>
           </div>
           <div class="text-center">
-            <div :class="['text-lg font-semibold', performanceMetrics.failureCount > 0 ? 'text-red-500' : BASE_CLASSES.heading]" 
+            <div :class="['text-lg font-semibold', performanceMetrics.failureCount > 0 ? 'text-red-500' : BASE_CLASSES.heading]"
                  aria-label="`失败次数 ${performanceMetrics.failureCount} 次`">
               {{ performanceMetrics.failureCount }}
             </div>
@@ -482,7 +482,7 @@ onUnmounted(() => {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="group" aria-labelledby="stats-title">
         <motion.div v-for="(stat, index) in statsData" :key="stat.label" :initial="{ opacity: 0, y: 20 }"
           :animate="{ opacity: 1, y: 0 }" :transition="{ delay: index * 0.1, duration: 0.5 }"
-          @click="handleStatClick(stat.label)" 
+          @click="handleStatClick(stat.label)"
           @keydown.enter="handleStatClick(stat.label)"
           @keydown.space.prevent="handleStatClick(stat.label)"
           :class="[
@@ -508,7 +508,7 @@ onUnmounted(() => {
                   class="inline-block w-8 h-6 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"
                   aria-label="数据加载中"></span>
                 <span v-else-if="hasError" class="text-red-500 dark:text-red-400" aria-label="数据加载失败">--</span>
-                <motion.span v-else 
+                <motion.span v-else
                              :key="stat.value"
                              :initial="{ opacity: 0, scale: 0.8 }"
                              :animate="{ opacity: 1, scale: 1 }"

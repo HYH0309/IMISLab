@@ -1,4 +1,4 @@
-import MarkdownIt from 'markdown-it'
+import * as MarkdownIt from 'markdown-it'
 
 // ========================
 // 核心插件：直接影响 Markdown 解析流程

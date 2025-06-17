@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue"
-import type { Component } from 'vue'
 
 defineProps<{
   modelValue: string
-  languages: Array<{ value: string; label: string; icon: Component | string; template?: string }>
+  languages: Array<{ value: string; label: string; icon: string; template?: string }>
 }>()
 
 const emit = defineEmits(['update:modelValue'])
@@ -24,8 +23,7 @@ const emit = defineEmits(['update:modelValue'])
         class="language-option">
         <div class="option-content" :class="{ 'option-selected': checked }">
           <div class="language-icon">
-            <component v-if="typeof lang.icon !== 'string'" :is="lang.icon" class="w-4 h-4" />
-            <span v-else :class="lang.icon" class="w-4 h-4"></span>
+            <span :class="lang.icon" class="w-4 h-4"></span>
           </div>
           <span class="language-label">{{ lang.label }}</span>
           <div v-if="checked" class="selected-indicator">

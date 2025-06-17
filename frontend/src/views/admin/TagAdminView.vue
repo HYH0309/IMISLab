@@ -6,7 +6,6 @@ import type { Tag } from '@/types/api'
 import AdminModal from '@/components/admin/AdminModal.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import BatchOperationToolbar from '@/components/common/BatchOperationToolbar.vue'
-import { FormLayout, FormGroup, FormInput, FormActions } from '@/components/form'
 import { useAdminCrud } from '@/composables/useAdminCrud'
 import { useBatchOperations } from '@/composables/useBatchOperations'
 import { useSmartCache } from '@/composables/useSmartCache'
@@ -269,7 +268,7 @@ loadTags()
       <!-- 搜索工具栏 -->
       <div :class="[BASE_CLASSES.card, 'mb-4 p-4']" role="toolbar" aria-label="标签管理工具栏">
         <div class="flex items-center justify-between gap-4">
-          <div class="relative max-w-md w-full">
+          <div class="relative flex-grow max-w-md">
             <label for="tag-search" class="sr-only">搜索标签</label>
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -394,46 +393,38 @@ loadTags()
   <!-- 标签表单模态框 -->
   <AdminModal v-model="showTagForm" :title="editingTag ? `编辑标签 '${editingTag.name}'` : '新建标签'" width="md"
     :loading="isLoading" role="dialog" aria-labelledby="modal-title" aria-describedby="modal-description">
-    <FormLayout variant="default">
-      <FormGroup title="标签信息" subtitle="设置标签的基本属性">
-        <FormInput
-          v-model="newTag.name"
-          label="标签名称"
-          name="tag-name"
-          placeholder="输入标签名称"
-          required
-          width="md"
-          :error="validationError"
-          help="标签名称用于分类文章，建议使用简洁明了的词汇"
-        />
-      </FormGroup>
-    </FormLayout>
+    <div class="space-y-6">
+      <div>
+        <label for="tag-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          标签名称
+          <span class="text-red-500" aria-label="必填项">*</span>
+        </label>
+        <input id="tag-name" v-model="newTag.name"
+          class="block w-auto mx-auto rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-colors"
+          placeholder="输入标签名称" :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': validationError }"
+          :aria-invalid="!!validationError" :aria-describedby="validationError ? 'tag-name-error' : 'tag-name-help'"
+          required />
+        <p id="tag-name-help" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          标签名称用于分类文章，建议使用简洁明了的词汇
+        </p>
+        <p v-if="validationError" id="tag-name-error" class="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
+          {{ validationError }}
+        </p>
+      </div>
+    </div>
     <template #footer>
-      <FormActions align="right">
+      <div class="flex justify-end space-x-3">
         <button @click="showTagForm = false"
-          class="px-6 py-2.5 text-gray-700 dark:text-gray-300
-                 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600
-                 hover:bg-gray-200 dark:hover:bg-gray-600
-                 rounded-lg transition-colors font-medium
-                 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors"
           aria-label="取消编辑并关闭对话框">
           取消
         </button>
         <button @click="submitTag"
-          :disabled="isLoading || !newTag.name.trim()"
-          class="px-6 py-2.5 text-white bg-blue-600 border border-blue-600
-                 hover:bg-blue-700 focus:bg-blue-700 disabled:bg-blue-400
-                 rounded-lg transition-colors font-medium
-                 disabled:opacity-50 disabled:cursor-not-allowed
-                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
           :aria-label="editingTag ? '保存标签修改' : '创建新标签'">
-          <span v-if="isLoading" class="flex items-center gap-2">
-            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            {{ editingTag ? '保存中...' : '创建中...' }}
-          </span>
-          <span v-else>{{ editingTag ? '更新' : '保存' }}</span>
+          {{ editingTag ? '更新' : '保存' }}
         </button>
-      </FormActions>
+      </div>
     </template>
   </AdminModal>
 

@@ -9,7 +9,6 @@ import AdminModal from '@/components/admin/AdminModal.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import BatchOperationToolbar from '@/components/common/BatchOperationToolbar.vue'
 import VirtualList from '@/components/common/VirtualList.vue'
-import { FormLayout, FormGroup, FormInput, FormActions } from '@/components/form'
 import { useAdminCrud } from '@/composables/useAdminCrud'
 import { useBatchOperations, type BatchOperation } from '@/composables/useBatchOperations'
 import { useSmartCache } from '@/composables/useSmartCache'
@@ -375,7 +374,7 @@ onMounted(() => {
       <!-- 搜索工具栏 -->
       <div :class="[BASE_CLASSES.card, 'mb-4 p-4']">
         <div class="flex items-center gap-4">
-          <div class="relative max-w-md">
+          <div class="flex-1 relative">
             <MagnifyingGlassIcon class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input v-model="searchQuery" type="text" placeholder="搜索文章标题或标签..."
               :class="['w-full pl-10 pr-4 py-2 border rounded-lg', BASE_CLASSES.input]" />
@@ -561,169 +560,114 @@ onMounted(() => {
 
     <!-- 创建文章模态框 -->
     <AdminModal v-model="showCreateForm" title="创建新文章" width="xl" :loading="isLoading">
-      <FormLayout variant="default">
-        <!-- 基本信息分组 -->
-        <FormGroup title="基本信息" subtitle="设置文章的基本属性">
-          <FormInput
-            v-model="newArticle.title"
-            label="文章标题"
-            name="title"
-            placeholder="请输入文章标题"
-            required
-            width="lg"
-            help="建议标题长度在 10-50 个字符之间"
-          />
+      <div class="space-y-6">
+        <!-- 标题输入 -->
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            文章标题 <span class="text-red-500">*</span>
+          </label>
+          <input id="title" v-model="newArticle.title" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                   bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入文章标题" />
+        </div>
+
+        <!-- 标签选择 -->
+        <div>
+          <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            文章标签
+          </label>
 
           <!-- 已选标签显示 -->
-          <div v-if="selectedTags.length > 0" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              已选择的标签
-            </label>
-            <div class="flex flex-wrap gap-2">
-              <span v-for="tag in selectedTags" :key="tag.id"
-                class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full border border-blue-200 dark:border-blue-800">
-                {{ tag.name }}
-                <button @click="removeTag(tag.id)"
-                  class="ml-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  :aria-label="`移除标签 ${tag.name}`">
-                  <XMarkIcon class="h-3 w-3" />
-                </button>
-              </span>
-            </div>
+          <div class="flex flex-wrap gap-2 mb-2">
+            <span v-for="tag in selectedTags" :key="tag.id"
+              class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-lg">
+              {{ tag.name }}
+              <button @click="removeTag(tag.id)" class="hover:text-blue-600 dark:hover:text-blue-400">
+                <XMarkIcon class="h-3 w-3" />
+              </button>
+            </span>
           </div>
 
-          <!-- 标签选择器 -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              文章标签
-            </label>
-            <div class="relative" ref="tagDropdownRef">
-              <button @click="toggleTagDropdown" @focus="handleTagInputFocus" type="button"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
-                       bg-white dark:bg-gray-800 text-left
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                       flex items-center justify-between transition-colors
-                       hover:border-gray-400 dark:hover:border-gray-500">
-                <span class="text-gray-700 dark:text-gray-300">
-                  {{ selectedTags.length > 0 ? `已选择 ${selectedTags.length} 个标签` : '点击选择标签' }}
-                </span>
-                <ChevronUpDownIcon class="h-4 w-4 text-gray-400" />
-              </button>
-
-              <!-- 下拉选项 -->
-              <div v-if="showTagDropdown"
-                class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-hidden">
-                <!-- 搜索框 -->
-                <div class="p-3 border-b border-gray-200 dark:border-gray-700">
-                  <input v-model="tagSearch" type="text" placeholder="搜索标签..."
-                    class="w-full max-w-xs px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
-                           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-                </div>
-
-                <!-- 全选选项 -->
-                <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                  <label
-                    class="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
-                    <input type="checkbox" :checked="newArticle.tagIds.length === allTagIds.length"
-                      @change="toggleAllTags"
-                      class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600
-                             focus:ring-blue-500 focus:ring-2" />
-                    全选/取消全选
-                  </label>
-                </div>
-
-                <!-- 标签选项列表 -->
-                <div class="max-h-40 overflow-y-auto">
-                  <label v-for="tag in filteredTags" :key="tag.id"
-                    class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300
-                           hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors">
-                    <input type="checkbox" :checked="newArticle.tagIds.includes(tag.id)" @change="toggleTag(tag.id)"
-                      class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600
-                             focus:ring-blue-500 focus:ring-2" />
-                    <span class="flex-1">{{ tag.name }}</span>
-                    <CheckIcon v-if="newArticle.tagIds.includes(tag.id)" class="h-4 w-4 text-blue-600" />
-                  </label>
-                </div>
-
-                <!-- 无结果提示 -->
-                <div v-if="filteredTags.length === 0" class="p-4 text-sm text-gray-500 dark:text-gray-400 text-center">
-                  <div class="flex flex-col items-center gap-2">
-                    <MagnifyingGlassIcon class="h-6 w-6 text-gray-400" />
-                    <span>没有找到匹配的标签</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </FormGroup>
-
-        <!-- 内容编辑分组 -->
-        <FormGroup title="文章内容" subtitle="编写您的文章内容，支持 Markdown 语法">
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <DocumentTextIcon class="h-4 w-4 text-gray-500" />
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  内容编辑器
-                </span>
-                <span class="text-red-500">*</span>
-              </div>
-              <button @click="showMarkdownHelp = true" type="button"
-                class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500
-                       hover:underline transition-colors">
-                Markdown 语法帮助
-              </button>
-            </div>
-            <textarea
-              v-model="newArticle.content"
-              rows="16"
-              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
-                     bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+          <!-- 标签选择下拉框 -->
+          <div class="relative" ref="tagDropdownRef">
+            <button @click="toggleTagDropdown" @focus="handleTagInputFocus" type="button" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                     bg-white dark:bg-gray-800 text-left
                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                     font-mono text-sm resize-vertical transition-colors
-                     placeholder-gray-400 dark:placeholder-gray-500"
-              placeholder="请输入文章内容，支持 Markdown 语法
+                     flex items-center justify-between">
+              <span class="text-gray-500 dark:text-gray-400">
+                {{ selectedTags.length > 0 ? `已选择 ${selectedTags.length} 个标签` : '点击选择标签' }}
+              </span>
+              <ChevronUpDownIcon class="h-4 w-4 text-gray-400" />
+            </button>
 
-示例：
-# 标题
-**粗体文字**
-*斜体文字*
-[链接文字](链接地址)
-![图片描述](图片地址)
+            <!-- 下拉选项 -->
+            <div v-if="showTagDropdown"
+              class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <!-- 搜索框 -->
+              <div class="p-2 border-b border-gray-200 dark:border-gray-700">
+                <input v-model="tagSearch" type="text" placeholder="搜索标签..." class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+              </div>
 
-```代码块```"
-            />
-            <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
-              <span>支持 Markdown 语法</span>
-              <span>•</span>
-              <span>{{ newArticle.content?.length || 0 }} 字符</span>
+              <!-- 全选选项 -->
+              <div class="p-2 border-b border-gray-200 dark:border-gray-700">
+                <label
+                  class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                  <input type="checkbox" :checked="newArticle.tagIds.length === allTagIds.length"
+                    @change="toggleAllTags"
+                    class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600" />
+                  全选/取消全选
+                </label>
+              </div>
+
+              <!-- 标签选项列表 -->
+              <div class="max-h-40 overflow-y-auto">
+                <label v-for="tag in filteredTags" :key="tag.id"
+                  class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
+                  <input type="checkbox" :checked="newArticle.tagIds.includes(tag.id)" @change="toggleTag(tag.id)"
+                    class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600" />
+                  {{ tag.name }}
+                  <CheckIcon v-if="newArticle.tagIds.includes(tag.id)" class="h-4 w-4 text-blue-600 ml-auto" />
+                </label>
+              </div>
+
+              <!-- 无结果提示 -->
+              <div v-if="filteredTags.length === 0" class="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                没有找到匹配的标签
+              </div>
             </div>
           </div>
-        </FormGroup>
-      </FormLayout>
+        </div>
+
+        <!-- 内容输入 -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              文章内容 <span class="text-red-500">*</span>
+            </label>
+            <button @click="showMarkdownHelp = true" type="button"
+              class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500">
+              Markdown 语法帮助
+            </button>
+          </div>
+          <textarea id="content" v-model="newArticle.content" rows="15" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                   bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                   font-mono text-sm" placeholder="请输入文章内容，支持 Markdown 语法"></textarea>
+        </div>
+      </div>
 
       <template #footer>
-        <FormActions align="right">
-          <button @click="closeModal" type="button"
-            class="px-6 py-2.5 text-gray-700 dark:text-gray-300
-                   bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600
-                   hover:bg-gray-200 dark:hover:bg-gray-600
-                   rounded-lg transition-colors font-medium">
+        <div class="flex justify-end gap-3">
+          <button @click="closeModal" type="button" class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700
+                   hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
             取消
           </button>
-          <button @click="submitForm" type="button" :disabled="isLoading"
-            class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400
-                   text-white rounded-lg transition-colors font-medium
-                   disabled:opacity-50 disabled:cursor-not-allowed
-                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-            <span v-if="isLoading" class="flex items-center gap-2">
-              <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              创建中...
-            </span>
-            <span v-else>创建文章</span>
+          <button @click="submitForm" type="button" :disabled="isLoading" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg
+                   disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            {{ isLoading ? '创建中...' : '创建文章' }}
           </button>
-        </FormActions>
+        </div>
       </template>
     </AdminModal>
 

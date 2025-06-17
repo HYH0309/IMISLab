@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { CodeBracketIcon, CommandLineIcon, PlayIcon } from '@heroicons/vue/24/outline'
 import Modal from '@/components/composable/BaseModal.vue'
 import OJResultPanel from '@/components/oj/OJResultPanel.vue'
 import OJLanguageSelector from '@/components/oj/OJLanguageSelector.vue'
-import CodeMirror from '@/components/common/CodeMirror.vue'
 import { api } from '@/api'
 import type { JudgeResult, OJProblem } from '@/types/api'
 
+// CodeMirror 导入
+import Codemirror from "codemirror-editor-vue3"
 
 // 语言配置
 const LANGUAGES = [
   {
     value: 'text/x-java',
     label: 'Java',
-    icon: CodeBracketIcon,
+    icon: 'i-logos:java',
     template: `public class Main {
     public static void main(String[] args) {
         System.out.println("Hello World");
@@ -25,7 +25,7 @@ const LANGUAGES = [
   {
     value: 'text/x-c++src',
     label: 'C++',
-    icon: CommandLineIcon,
+    icon: 'i-logos:c-plusplus',
     template: `#include <iostream>
 using namespace std;
 
@@ -35,9 +35,9 @@ int main() {
 }`
   },
   {
-    value: 'python',
+    value: 'text/x-python',
     label: 'Python',
-    icon: PlayIcon,
+    icon: 'i-logos:python',
     template: `# Python Solution
 def main():
     print("Hello World")
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 const LANGUAGE_ID_MAP: Record<string, number> = {
   'text/x-java': 62,
   'text/x-c++src': 54,
-  'python': 71
+  'text/x-python': 71
 }
 
 // 响应式状态
@@ -185,14 +185,24 @@ const stopPolling = () => {
 }
 
 // 计算属性
-const getCodeMirrorLanguage = (lang: string): 'java' | 'cpp' | 'python' => {
-  const langMap: Record<string, 'java' | 'cpp' | 'python'> = {
-    'text/x-java': 'java',
-    'text/x-c++src': 'cpp',
-    'python': 'python'
+const codemirrorOptions = computed(() => ({
+  mode: currentLanguage.value,
+  theme: editorSettings.value.theme,
+  lineNumbers: true,
+  fontFamily: 'Fira Code, Monaco, Consolas, monospace',
+  fontSize: `${editorSettings.value.fontSize}px`,
+  lineWrapping: true,
+  indentUnit: editorSettings.value.tabSize,
+  autoCloseBrackets: true,
+  matchBrackets: true,
+  styleActiveLine: true,
+  foldGutter: true,
+  gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+  extraKeys: {
+    'Ctrl-Enter': () => submitCode(),
+    'Cmd-Enter': () => submitCode()
   }
-  return langMap[lang] || 'java'
-}
+}))
 
 const isSubmitting = computed(() => submitStatus.value === 'loading')
 const isPolling = computed(() => submitStatus.value === 'polling')
@@ -366,14 +376,8 @@ onUnmounted(stopPolling)
 
           <!-- 代码编辑器 -->
           <div class="editor-container">
-            <CodeMirror
-              v-model="code"
-              :language="getCodeMirrorLanguage(currentLanguage)"
-              height="450px"
-              width="100%"
-              :theme="editorSettings.theme === 'dark' ? 'dark' : 'light'"
-              class="code-editor"
-            />
+            <Codemirror v-model:value="code" :options="codemirrorOptions" height="450px" width="100%"
+              class="code-editor" />
           </div>
 
           <!-- 底部操作栏 -->
@@ -627,7 +631,19 @@ onUnmounted(stopPolling)
   }
 }
 
+/* CodeMirror 样式覆盖 */
+:deep(.CodeMirror) {
+  @apply font-mono text-sm;
+  @apply border border-gray-300 dark:border-gray-600;
+}
 
+:deep(.CodeMirror-focused .CodeMirror-selected) {
+  @apply bg-emerald-100 dark:bg-emerald-900/30;
+}
+
+:deep(.CodeMirror-activeline-background) {
+  @apply bg-emerald-50 dark:bg-emerald-900/20;
+}
 
 /* 轮询状态样式 */
 .polling-status {
