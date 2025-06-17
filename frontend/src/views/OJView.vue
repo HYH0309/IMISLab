@@ -7,8 +7,6 @@ import OJLanguageSelector from '@/components/oj/OJLanguageSelector.vue'
 import { api } from '@/api'
 import type { JudgeResult, OJProblem } from '@/types/api'
 
-// CodeMirror 导入
-import Codemirror from "codemirror-editor-vue3"
 
 // 语言配置
 const LANGUAGES = [

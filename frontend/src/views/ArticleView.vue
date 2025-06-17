@@ -2,7 +2,7 @@
 // 声明id为props，确保RouterView传递的id能被接收
 defineProps<{ id: string }>()
 
-import { reactive, onMounted, computed, watch, Teleport } from 'vue'
+import { reactive, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { md } from '@/composables/useMarked'
 import ArticleToc from '@/components/article/ArticleToc.vue'
