@@ -6,6 +6,8 @@ import type { Tag } from '@/types/api'
 import AdminModal from '@/components/admin/AdminModal.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import BatchOperationToolbar from '@/components/common/BatchOperationToolbar.vue'
+import FormField from '@/components/common/FormField.vue'
+import FormInput from '@/components/common/FormInput.vue'
 import { useAdminCrud } from '@/composables/useAdminCrud'
 import { useBatchOperations } from '@/composables/useBatchOperations'
 import { useSmartCache } from '@/composables/useSmartCache'
@@ -394,23 +396,19 @@ loadTags()
   <AdminModal v-model="showTagForm" :title="editingTag ? `编辑标签 '${editingTag.name}'` : '新建标签'" width="md"
     :loading="isLoading" role="dialog" aria-labelledby="modal-title" aria-describedby="modal-description">
     <div class="space-y-6">
-      <div>
-        <label for="tag-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          标签名称
-          <span class="text-red-500" aria-label="必填项">*</span>
-        </label>
-        <input id="tag-name" v-model="newTag.name"
-          class="block w-auto mx-auto rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-colors"
-          placeholder="输入标签名称" :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': validationError }"
-          :aria-invalid="!!validationError" :aria-describedby="validationError ? 'tag-name-error' : 'tag-name-help'"
-          required />
-        <p id="tag-name-help" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          标签名称用于分类文章，建议使用简洁明了的词汇
-        </p>
-        <p v-if="validationError" id="tag-name-error" class="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
-          {{ validationError }}
-        </p>
-      </div>
+      <FormField 
+        label="标签名称" 
+        :error="validationError" 
+        help-text="标签名称用于分类文章，建议使用简洁明了的词汇"
+        required>
+        <FormInput
+          id="tag-name"
+          v-model="newTag.name"
+          placeholder="输入标签名称"
+          :aria-invalid="!!validationError"
+          required
+        />
+      </FormField>
     </div>
     <template #footer>
       <div class="flex justify-end space-x-3">

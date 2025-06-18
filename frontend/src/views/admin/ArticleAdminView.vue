@@ -9,6 +9,10 @@ import AdminModal from '@/components/admin/AdminModal.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import BatchOperationToolbar from '@/components/common/BatchOperationToolbar.vue'
 import VirtualList from '@/components/common/VirtualList.vue'
+import FormField from '@/components/common/FormField.vue'
+import FormInput from '@/components/common/FormInput.vue'
+import ImageUpload from '@/components/common/ImageUpload.vue'
+import SimpleEditor from '@/components/common/SimpleEditor.vue'
 import { useAdminCrud } from '@/composables/useAdminCrud'
 import { useBatchOperations, type BatchOperation } from '@/composables/useBatchOperations'
 import { useSmartCache } from '@/composables/useSmartCache'
@@ -33,17 +37,21 @@ const {
     return result
   },
   create: async (article) => {
-    // 获取对应的ArticleRequest数据
+    // 确保coverUrl不会太长，如果是文件名就保持文件名，如果为空就设为空字符串
+    const coverUrl = newArticle.value.coverUrl && newArticle.value.coverUrl.length < 200 ? newArticle.value.coverUrl : ''
+    
     const articleRequest: ArticleRequest = {
-      title: article.title,
-      content: newArticle.value.content, // 从表单获取content
-      tagIds: newArticle.value.tagIds, // 从表单获取tagIds
-      coverUrl: article.coverUrl
+      title: newArticle.value.title,
+      content: newArticle.value.content,
+      tagIds: newArticle.value.tagIds,
+      coverUrl: coverUrl
     }
+    
+    console.log('创建文章请求:', articleRequest)
     const { status } = await api.createArticle(articleRequest)
     return status ? {
       id: Date.now(),
-      title: article.title,
+      title: newArticle.value.title,
       summary: newArticle.value.summary || '',
       tagIds: newArticle.value.tagIds,
       createdAt: new Date().toISOString(),
@@ -317,6 +325,45 @@ const closeModal = () => {
   uploadError.value = ''
 }
 
+// 图片上传处理
+const handleCoverUpload = async (file: File) => {
+  try {
+    console.log('开始上传图片:', file.name, '大小:', (file.size / 1024).toFixed(2) + 'KB')
+    
+    // 直接上传到云端获取URL
+    const { status, data } = await api.uploadImage(file)
+    if (status && data) {
+      // 上传成功，保存云端URL
+      newArticle.value.coverUrl = data
+      coverPreview.value = data  // 更新预览URL
+      console.log('图片上传成功，URL:', data)
+    } else {
+      throw new Error('上传失败')
+    }
+    
+  } catch (error) {
+    console.error('图片上传失败:', error)
+    handleUploadError('图片上传失败，请重试')
+    // 清除预览
+    coverPreview.value = ''
+    newArticle.value.coverUrl = ''
+  }
+}
+
+// 移除封面图片
+const handleCoverRemove = () => {
+  newArticle.value.coverUrl = ''
+  coverPreview.value = ''
+  coverFile.value = null
+}
+
+// 上传错误处理
+const handleUploadError = (error: string) => {
+  console.error('上传错误:', error)
+  // 显示用户友好的错误消息
+  alert(error)
+}
+
 // 加载标签
 const loadTags = async () => {
   try {
@@ -562,21 +609,28 @@ onMounted(() => {
     <AdminModal v-model="showCreateForm" title="创建新文章" width="xl" :loading="isLoading">
       <div class="space-y-6">
         <!-- 标题输入 -->
-        <div>
-          <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            文章标题 <span class="text-red-500">*</span>
-          </label>
-          <input id="title" v-model="newArticle.title" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
-                   bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入文章标题" />
-        </div>
+        <FormField label="文章标题" required>
+          <FormInput
+            id="title"
+            v-model="newArticle.title"
+            placeholder="请输入文章标题"
+            required
+          />
+        </FormField>
+
+        <!-- 封面图片上传 -->
+        <ImageUpload
+          :model-value="coverPreview || newArticle.coverUrl"
+          label="文章封面图片"
+          help-text="建议尺寸 16:9，支持 JPG、PNG、GIF、WebP 格式，最大 10MB"
+          :max-size="10"
+          @upload="handleCoverUpload"
+          @error="handleUploadError"
+          @remove="handleCoverRemove"
+        />
 
         <!-- 标签选择 -->
-        <div>
-          <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            文章标签
-          </label>
-
+        <FormField label="文章标签" help-text="选择文章相关的标签进行分类">
           <!-- 已选标签显示 -->
           <div class="flex flex-wrap gap-2 mb-2">
             <span v-for="tag in selectedTags" :key="tag.id"
@@ -637,24 +691,16 @@ onMounted(() => {
               </div>
             </div>
           </div>
-        </div>
+        </FormField>
 
-        <!-- 内容输入 -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              文章内容 <span class="text-red-500">*</span>
-            </label>
-            <button @click="showMarkdownHelp = true" type="button"
-              class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500">
-              Markdown 语法帮助
-            </button>
-          </div>
-          <textarea id="content" v-model="newArticle.content" rows="15" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
-                   bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                   font-mono text-sm" placeholder="请输入文章内容，支持 Markdown 语法"></textarea>
-        </div>
+        <!-- 内容编辑 -->
+        <SimpleEditor
+          v-model="newArticle.content"
+          label="文章内容"
+          placeholder="开始编写您的文章内容..."
+          :rows="15"
+          required
+        />
       </div>
 
       <template #footer>

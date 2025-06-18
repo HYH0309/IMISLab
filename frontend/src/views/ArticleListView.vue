@@ -293,7 +293,7 @@ const updateSelectedTags = (val: string[]) => {
         <!-- 文章卡片网格 -->
         <div class="article-grid">
           <ArticleCard v-for="(article, index) in paginatedArticles" :key="article.id" :article="article"
-            :style="{ animationDelay: `${index * 0.1}s` }" class="article-card-animated" />
+            :tags="allTags" :style="{ animationDelay: `${index * 0.1}s` }" class="article-card-animated" />
         </div>
 
 

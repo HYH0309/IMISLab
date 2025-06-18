@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import type { ArticleSummary } from '@/types/api';
+import type { ArticleSummary, Tag } from '@/types/api';
 import { CalendarIcon } from '@heroicons/vue/24/outline'
+import { computed } from 'vue'
 
-defineProps<{
+interface Props {
   article: ArticleSummary
-}>()
+  tags?: Tag[]
+}
+
+const props = defineProps<Props>()
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('zh-CN', {
@@ -13,6 +17,22 @@ const formatDate = (dateString: string) => {
     day: 'numeric'
   })
 }
+
+// 计算属性：根据标签ID获取标签名称
+const articleTags = computed(() => {
+  if (!props.tags || !props.article.tagIds) return []
+
+  return props.article.tagIds
+    .map(tagId => props.tags?.find(tag => tag.id === tagId))
+    .filter((tag): tag is Tag => tag !== undefined)
+    .slice(0, 3) // 最多显示3个标签
+})
+
+// 计算剩余标签数量
+const remainingTagsCount = computed(() => {
+  if (!props.article.tagIds) return 0
+  return Math.max(0, props.article.tagIds.length - 3)
+})
 
 const onImageLoad = (event: Event) => {
   const img = event.target as HTMLImageElement
@@ -57,12 +77,12 @@ const onImageError = (event: Event) => {
         </div>
 
         <!-- 标签区域 -->
-        <div v-if="article.tagIds?.length" class="tags-container">
-          <span v-for="(tagId, i) in article.tagIds.slice(0, 3)" :key="i" class="tag-item">
-            标签{{ tagId }}
+        <div v-if="articleTags.length || remainingTagsCount > 0" class="tags-container">
+          <span v-for="tag in articleTags" :key="tag.id" class="tag-item">
+            {{ tag.name }}
           </span>
-          <span v-if="article.tagIds.length > 3" class="tag-more">
-            +{{ article.tagIds.length - 3 }}
+          <span v-if="remainingTagsCount > 0" class="tag-more">
+            +{{ remainingTagsCount }}
           </span>
         </div>
 

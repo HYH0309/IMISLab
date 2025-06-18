@@ -2,7 +2,7 @@
 import { motion, useScroll, useSpring } from 'motion-v'
 import GalleryItem from '@/components/GalleryItem.vue'
 import Modal from '@/components/composable/BaseModal.vue';
-import { ref, Teleport } from 'vue';
+import { ref } from 'vue';
 
 const titleMap: Record<number, string> = {
   1: '信息革命初期',

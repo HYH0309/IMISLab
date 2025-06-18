@@ -4,6 +4,7 @@ import (
 	"backend/utils"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -20,7 +21,12 @@ func UploadImage(c *gin.Context) {
 		utils.Fail(c, http.StatusBadRequest, "没有上传文件")
 		return
 	}
-	defer file.Close()
+	defer func(file multipart.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	// 验证文件类型
 	allowedTypes := []string{".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"}
@@ -43,7 +49,7 @@ func UploadImage(c *gin.Context) {
 	filename := fmt.Sprintf("%d_%s", timestamp, header.Filename)
 
 	// 确保上传目录存在
-	uploadDir := "uploads/images"
+	uploadDir := "images"
 	if err := os.MkdirAll(uploadDir, 0755); err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "创建上传目录失败")
 		return
@@ -55,7 +61,12 @@ func UploadImage(c *gin.Context) {
 		utils.Fail(c, http.StatusInternalServerError, "创建文件失败")
 		return
 	}
-	defer dst.Close()
+	defer func(dst *os.File) {
+		err := dst.Close()
+		if err != nil {
+
+		}
+	}(dst)
 
 	if _, err := io.Copy(dst, file); err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "保存文件失败")
@@ -63,7 +74,7 @@ func UploadImage(c *gin.Context) {
 	}
 
 	// 返回文件访问URL（与前端接口对应，只返回URL字符串）
-	fileUrl := fmt.Sprintf("/images/%s", filename)
+	fileUrl := fmt.Sprintf("api/images/%s", filename)
 	utils.Success(c, fileUrl, "图片上传成功")
 }
 
@@ -75,7 +86,7 @@ func DeleteImage(c *gin.Context) {
 		return
 	}
 
-	filePath := filepath.Join("uploads/images", filename)
+	filePath := filepath.Join("images", filename)
 
 	// 检查文件是否存在
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -93,9 +104,8 @@ func DeleteImage(c *gin.Context) {
 }
 
 // GetAllImages 获取所有图片列表
-// GetAllImages 获取所有图片列表
 func GetAllImages(c *gin.Context) {
-	files, err := os.ReadDir("uploads/images")
+	files, err := os.ReadDir("images")
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "读取目录失败")
 		return
@@ -129,7 +139,7 @@ func GetImageInfo(c *gin.Context) {
 		return
 	}
 
-	filePath := filepath.Join("uploads/images", filename)
+	filePath := filepath.Join("/images", filename)
 
 	fileInfo, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
@@ -142,7 +152,7 @@ func GetImageInfo(c *gin.Context) {
 	}
 	imageInfo := gin.H{
 		"filename":   fileInfo.Name(),
-		"url":        fmt.Sprintf("/images/%s", filename),
+		"url":        fmt.Sprintf("images/%s", filename),
 		"size":       fileInfo.Size(),
 		"type":       filepath.Ext(filename),
 		"modifiedAt": fileInfo.ModTime().Format("2006-01-02 15:04:05"),

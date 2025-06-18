@@ -9,22 +9,22 @@ import (
 // SetupRoutes 设置所有路由
 func SetupRoutes(r *gin.Engine) {
 	// 静态文件服务 - 图片访问
-	r.Static("/images", "./uploads/images")
+	r.Static("/images", "./images")
 	// 图片上传接口 (前端使用 /img)
 	r.POST("/img", controller.UploadImage)
 
-	// API路由组
-	api := r.Group("/api")
-	{
-		// 图片管理接口
-		images := api.Group("/images")
-		{
-			images.POST("", controller.UploadImage)
-			images.DELETE("/:filename", controller.DeleteImage)
-			images.GET("", controller.GetAllImages)
-			images.GET("/info/:filename", controller.GetImageInfo)
-		}
-	}
+	//// API路由组
+	//api := r.Group("/api")
+	//{
+	//	// 图片管理接口
+	//	images := api.Group("/images")
+	//	{
+	//		images.POST("", controller.UploadImage)
+	//		images.DELETE("/:filename", controller.DeleteImage)
+	//		images.GET("", controller.GetAllImages)
+	//		images.GET("/info/:filename", controller.GetImageInfo)
+	//	}
+	//}
 
 	// 文章相关路由
 	articles := r.Group("/articles")
@@ -57,7 +57,7 @@ func SetupRoutes(r *gin.Engine) {
 		oj.GET("/problems", controller.GetAllProblems)
 		oj.GET("/problems/:id", controller.GetProblemByID) // 新增：根据ID获取题目
 		oj.POST("/problem", controller.CreateProblem)
-		oj.PUT("/problem/:id", controller.UpdateProblem)   // 新增：更新题目
+		oj.PUT("/problem/:id", controller.UpdateProblem) // 新增：更新题目
 		oj.DELETE("/problem/:id", controller.DeleteProblem)
 		oj.POST("/testcase/:problem_id", controller.CreateTestcase)
 		oj.GET("/testcase/:problem_id", controller.GetTestcases) // 新增：获取测试用例
