@@ -43,20 +43,16 @@ const selectedTab = ref(tabs[0])
 <template>
   <div class="container">
     <nav class="nav">
-      <div class="nav-container">
-        <ul class="tabs-container">
-          <motion.li v-for="tab in tabs" :key="tab.id" class="tab" :class="{ 'active': selectedTab.id === tab.id }"
-            @click="selectedTab = tab">
-            <component :is="selectedTab.id === tab.id ? tab.activeIcon : tab.icon" class="icon" />
-            <span class="label">{{ tab.label }}</span>
-            <motion.div v-if="selectedTab.id === tab.id" class="underline" layout-id="underline" />
-          </motion.li>
-        </ul>
-        <button class="action-btn">
-          <span class="action-text">重置动画</span>
-          <span class="action-icon">↻</span>
-        </button>
-      </div>
+
+      <ul class="tabs-container">
+        <motion.li v-for="tab in tabs" :key="tab.id" class="tab" :class="{ 'active': selectedTab.id === tab.id }"
+          @click="selectedTab = tab">
+          <component :is="selectedTab.id === tab.id ? tab.activeIcon : tab.icon" class="icon" />
+          <span class="label">{{ tab.label }}</span>
+          <motion.div v-if="selectedTab.id === tab.id" class="underline" layout-id="underline" />
+        </motion.li>
+      </ul>
+
     </nav>
 
     <main>
@@ -76,11 +72,7 @@ const selectedTab = ref(tabs[0])
 }
 
 .nav {
-  @apply rounded-xl shadow-card p-4 bg-card;
-}
-
-.nav-container {
-  @apply flex justify-between items-center;
+  @apply rounded-xl p-4 flex-center;
 }
 
 .tabs-container {

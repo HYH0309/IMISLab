@@ -39,14 +39,14 @@ const {
   create: async (article) => {
     // 确保coverUrl不会太长，如果是文件名就保持文件名，如果为空就设为空字符串
     const coverUrl = newArticle.value.coverUrl && newArticle.value.coverUrl.length < 200 ? newArticle.value.coverUrl : ''
-    
+
     const articleRequest: ArticleRequest = {
       title: newArticle.value.title,
       content: newArticle.value.content,
       tagIds: newArticle.value.tagIds,
       coverUrl: coverUrl
     }
-    
+
     console.log('创建文章请求:', articleRequest)
     const { status } = await api.createArticle(articleRequest)
     return status ? {
@@ -303,7 +303,8 @@ const submitForm = async () => {
       summary: newArticle.value.summary || '',
       tagIds: newArticle.value.tagIds,
       createdAt: new Date().toISOString(),
-      coverUrl: newArticle.value.coverUrl
+      coverUrl: newArticle.value.coverUrl,
+      views: 0  // 新文章阅读量为0
     }
     await createArticle(articleForCrud)
     // 重置表单
@@ -329,7 +330,7 @@ const closeModal = () => {
 const handleCoverUpload = async (file: File) => {
   try {
     console.log('开始上传图片:', file.name, '大小:', (file.size / 1024).toFixed(2) + 'KB')
-    
+
     // 直接上传到云端获取URL
     const { status, data } = await api.uploadImage(file)
     if (status && data) {
@@ -340,7 +341,7 @@ const handleCoverUpload = async (file: File) => {
     } else {
       throw new Error('上传失败')
     }
-    
+
   } catch (error) {
     console.error('图片上传失败:', error)
     handleUploadError('图片上传失败，请重试')
@@ -610,24 +611,13 @@ onMounted(() => {
       <div class="space-y-6">
         <!-- 标题输入 -->
         <FormField label="文章标题" required>
-          <FormInput
-            id="title"
-            v-model="newArticle.title"
-            placeholder="请输入文章标题"
-            required
-          />
+          <FormInput id="title" v-model="newArticle.title" placeholder="请输入文章标题" required />
         </FormField>
 
         <!-- 封面图片上传 -->
-        <ImageUpload
-          :model-value="coverPreview || newArticle.coverUrl"
-          label="文章封面图片"
-          help-text="建议尺寸 16:9，支持 JPG、PNG、GIF、WebP 格式，最大 10MB"
-          :max-size="10"
-          @upload="handleCoverUpload"
-          @error="handleUploadError"
-          @remove="handleCoverRemove"
-        />
+        <ImageUpload :model-value="coverPreview || newArticle.coverUrl" label="文章封面图片"
+          help-text="建议尺寸 16:9，支持 JPG、PNG、GIF、WebP 格式，最大 10MB" :max-size="10" @upload="handleCoverUpload"
+          @error="handleUploadError" @remove="handleCoverRemove" />
 
         <!-- 标签选择 -->
         <FormField label="文章标签" help-text="选择文章相关的标签进行分类">
@@ -694,13 +684,7 @@ onMounted(() => {
         </FormField>
 
         <!-- 内容编辑 -->
-        <SimpleEditor
-          v-model="newArticle.content"
-          label="文章内容"
-          placeholder="开始编写您的文章内容..."
-          :rows="15"
-          required
-        />
+        <SimpleEditor v-model="newArticle.content" label="文章内容" placeholder="开始编写您的文章内容..." :rows="15" required />
       </div>
 
       <template #footer>

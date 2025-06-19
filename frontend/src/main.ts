@@ -2,6 +2,10 @@
 import '@unocss/reset/normalize.css' // 重置样式
 import 'github-markdown-css' // Markdown 样式
 import 'highlight.js/styles/github.css' // 代码高亮
+import '@fontsource/jetbrains-mono' // JetBrains Mono 字体
+import '@fontsource/jetbrains-mono/400.css'
+import '@fontsource/jetbrains-mono/500.css'
+import '@fontsource/jetbrains-mono/700.css'
 import './assets/main.css'
 
 // 确保 UnoCSS 在最后加载

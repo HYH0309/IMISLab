@@ -209,7 +209,7 @@ export class TestCaseUtils {
 /**
  * ZIP 文件导出工具
  */
-import * as JSZip from 'jszip'
+import JSZip from 'jszip'
 
 export class ZipExporter {
   /**

@@ -2,14 +2,18 @@ package config
 
 import (
 	"backend/entity"
+	"context"
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/go-redis/redis/v8"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
+var RedisClient *redis.Client
 
 // InitDB 初始化数据库连接
 func InitDB() {
@@ -40,6 +44,40 @@ func InitDB() {
 	}
 
 	fmt.Println("Database connected successfully!")
+}
+
+// InitRedis 初始化Redis连接
+func InitRedis() {
+	RedisClient = redis.NewClient(&redis.Options{
+		Addr:         getEnv("REDIS_HOST", "localhost") + ":" + getEnv("REDIS_PORT", "6379"),
+		Password:     getEnv("REDIS_PASSWORD", ""), // Redis密码，默认为空
+		DB:           0,                            // Redis数据库索引
+		PoolSize:     10,                           // 连接池大小
+		MinIdleConns: 2,                            // 最小空闲连接数
+		MaxRetries:   3,                            // 最大重试次数
+		DialTimeout:  5 * time.Second,              // 连接超时
+		ReadTimeout:  3 * time.Second,              // 读取超时
+		WriteTimeout: 3 * time.Second,              // 写入超时
+	})
+
+	// 测试Redis连接
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	pong, err := RedisClient.Ping(ctx).Result()
+	if err != nil {
+		panic("failed to connect redis: " + err.Error())
+	}
+
+	fmt.Printf("Redis connected successfully! Response: %s\n", pong)
+}
+
+// CloseRedis 关闭Redis连接
+func CloseRedis() {
+	if RedisClient != nil {
+		RedisClient.Close()
+		fmt.Println("Redis connection closed.")
+	}
 }
 
 // getEnv 获取环境变量，如果不存在则返回默认值

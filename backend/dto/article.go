@@ -25,6 +25,7 @@ type ArticleResponse struct {
 	Content   string `json:"content"`
 	Summary   string `json:"summary"`
 	CoverUrl  string `json:"coverUrl"`
+	Views     int64  `json:"views"` // 阅读量
 	TagIds    []uint `json:"tagIds"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
@@ -36,6 +37,7 @@ type ArticleListResponse struct {
 	Title     string `json:"title"`
 	Summary   string `json:"summary"`
 	CoverUrl  string `json:"coverUrl"`
+	Views     int64  `json:"views"` // 阅读量
 	TagIds    []uint `json:"tagIds"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`

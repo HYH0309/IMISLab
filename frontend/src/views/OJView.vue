@@ -1,6 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import {
+  PlayIcon,
+  ArrowPathIcon,
+  DocumentTextIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ExclamationTriangleIcon,
+  CodeBracketIcon
+} from '@heroicons/vue/24/outline'
+import { Codemirror } from 'vue-codemirror'
+import { java } from '@codemirror/lang-java'
+import { cpp } from '@codemirror/lang-cpp'
+import { python } from '@codemirror/lang-python'
+import { oneDark } from '@codemirror/theme-one-dark'
 import Modal from '@/components/composable/BaseModal.vue'
 import OJResultPanel from '@/components/oj/OJResultPanel.vue'
 import OJLanguageSelector from '@/components/oj/OJLanguageSelector.vue'
@@ -11,44 +26,47 @@ import type { JudgeResult, OJProblem } from '@/types/api'
 // 语言配置
 const LANGUAGES = [
   {
-    value: 'text/x-java',
+    value: 'java',
     label: 'Java',
-    icon: 'i-logos:java',
+    icon: '☕',
     template: `public class Main {
     public static void main(String[] args) {
         System.out.println("Hello World");
     }
-}`
+}`,
+    extension: java()
   },
   {
-    value: 'text/x-c++src',
+    value: 'cpp',
     label: 'C++',
-    icon: 'i-logos:c-plusplus',
+    icon: '⚡',
     template: `#include <iostream>
 using namespace std;
 
 int main() {
     cout << "Hello World" << endl;
     return 0;
-}`
+}`,
+    extension: cpp()
   },
   {
-    value: 'text/x-python',
+    value: 'python',
     label: 'Python',
-    icon: 'i-logos:python',
+    icon: '🐍',
     template: `# Python Solution
 def main():
     print("Hello World")
 
 if __name__ == "__main__":
-    main()`
+    main()`,
+    extension: python()
   }
 ]
 
 const LANGUAGE_ID_MAP: Record<string, number> = {
-  'text/x-java': 62,
-  'text/x-c++src': 54,
-  'text/x-python': 71
+  'java': 62,
+  'cpp': 54,
+  'python': 71
 }
 
 // 响应式状态
@@ -82,6 +100,14 @@ watch(currentLanguage, (newLang) => {
     code.value = language.template
   }
 })
+
+// 键盘事件处理
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.ctrlKey && event.key === 'Enter') {
+    event.preventDefault()
+    submitCode()
+  }
+}
 
 // 获取题目数据
 const fetchProblem = async () => {
@@ -183,40 +209,27 @@ const stopPolling = () => {
 }
 
 // 计算属性
-const codemirrorOptions = computed(() => ({
-  mode: currentLanguage.value,
-  theme: editorSettings.value.theme,
-  lineNumbers: true,
-  fontFamily: 'Fira Code, Monaco, Consolas, monospace',
-  fontSize: `${editorSettings.value.fontSize}px`,
-  lineWrapping: true,
-  indentUnit: editorSettings.value.tabSize,
-  autoCloseBrackets: true,
-  matchBrackets: true,
-  styleActiveLine: true,
-  foldGutter: true,
-  gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-  extraKeys: {
-    'Ctrl-Enter': () => submitCode(),
-    'Cmd-Enter': () => submitCode()
-  }
-}))
+const currentLanguageInfo = computed(() => {
+  return LANGUAGES.find(lang => lang.value === currentLanguage.value) || LANGUAGES[0]
+})
+
+const codemirrorExtensions = computed(() => {
+  const extensions = [currentLanguageInfo.value.extension]
+
+  // 注意：oneDark 主题暂时注释掉，可以根据需要启用
+  // const isDark = false // 可以从主题状态获取
+  // if (isDark) {
+  //   extensions.push(oneDark)
+  // }
+
+  return extensions
+})
 
 const isSubmitting = computed(() => submitStatus.value === 'loading')
 const isPolling = computed(() => submitStatus.value === 'polling')
-const canSubmit = computed(() => submitStatus.value === 'idle')
-
-const currentLanguageInfo = computed(() =>
-  LANGUAGES.find(lang => lang.value === currentLanguage.value) || LANGUAGES[0]
-)
-
-// 重置代码模板
-const resetCode = () => {
-  const language = LANGUAGES.find(lang => lang.value === currentLanguage.value)
-  if (language) {
-    code.value = language.template
-  }
-}
+const canSubmit = computed(() => {
+  return !isSubmitting.value && !isPolling.value && code.value.trim().length > 0
+})
 
 // 生命周期
 onMounted(fetchProblem)
@@ -276,11 +289,7 @@ onUnmounted(stopPolling)
         <div class="header-actions">
           <div class="flex gap-3">
             <button @click="isModalOpen = true" class="action-btn primary">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4">
-                </path>
-              </svg>
+              <CodeBracketIcon class="w-4 h-4" />
               编写代码
             </button>
           </div>
@@ -300,11 +309,7 @@ onUnmounted(stopPolling)
           <div class="text-center py-12">
             <div
               class="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center">
-              <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 19c-.77.833.192 2.5 1.732 2.5z">
-                </path>
-              </svg>
+              <ExclamationTriangleIcon class="w-8 h-8 text-red-500" />
             </div>
             <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">加载失败</h3>
             <p class="text-gray-500 dark:text-gray-400 mb-4">{{ error.message }}</p>
@@ -323,11 +328,7 @@ onUnmounted(stopPolling)
       <div v-if="isPolling && !judgeStatus" class="polling-status">
         <div class="polling-content">
           <div class="polling-icon">
-            <svg class="w-6 h-6 animate-spin text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-              </path>
-            </svg>
+            <ArrowPathIcon class="w-6 h-6 animate-spin text-blue-500" />
           </div>
           <div class="polling-text">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">正在判题中...</h3>
@@ -359,23 +360,21 @@ onUnmounted(stopPolling)
                 <OJLanguageSelector v-model="currentLanguage" :languages="LANGUAGES" />
               </div>
             </div>
-
-            <div class="toolbar-right">
-              <button @click="resetCode" class="toolbar-btn">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                  </path>
-                </svg>
-                重置
-              </button>
-            </div>
           </div>
 
           <!-- 代码编辑器 -->
           <div class="editor-container">
-            <Codemirror v-model:value="code" :options="codemirrorOptions" height="450px" width="100%"
-              class="code-editor" />
+            <div class="editor-header">
+              <div class="flex items-center space-x-2">
+                <DocumentTextIcon class="w-4 h-4 text-gray-500" />
+                <span class="text-sm text-gray-600 dark:text-gray-400">代码编辑器</span>
+              </div>
+            </div>
+
+            <!-- CodeMirror 编辑器 -->
+            <Codemirror v-model="code" :placeholder="`在这里输入你的 ${currentLanguageInfo.label} 代码...`"
+              :style="{ height: '400px', fontSize: '14px' }" :autofocus="true" :indent-with-tab="true"
+              :tab-size="editorSettings.tabSize" :extensions="codemirrorExtensions" @keydown="handleKeyDown" />
           </div>
 
           <!-- 底部操作栏 -->
@@ -387,30 +386,12 @@ onUnmounted(stopPolling)
             </div>
             <div class="footer-right">
               <button @click="submitCode" :disabled="!canSubmit" class="submit-btn">
-                <span v-if="isSubmitting" class="loading-icon">
-                  <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                    </path>
-                  </svg>
+                <ArrowPathIcon v-if="isSubmitting" class="w-4 h-4 animate-spin" />
+                <ClockIcon v-else-if="isPolling" class="w-4 h-4 animate-pulse" />
+                <PlayIcon v-else class="w-4 h-4" />
+                <span class="ml-2">
+                  {{ isSubmitting ? '提交中...' : isPolling ? '评判中...' : '提交代码' }}
                 </span>
-                <span v-else-if="isPolling" class="polling-icon">
-                  <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </span>
-                <span v-else class="submit-icon">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                  </svg>
-                </span>
-                {{
-                  isSubmitting ? '提交中...' :
-                    isPolling ? '等待结果...' :
-                      '提交代码'
-                }}
               </button>
             </div>
           </div>
@@ -546,8 +527,22 @@ onUnmounted(stopPolling)
   @apply border-b border-gray-200 dark:border-gray-700;
 }
 
-.code-editor {
-  @apply h-full;
+.editor-header {
+  @apply flex items-center justify-between px-4 py-3;
+  @apply bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700;
+}
+
+.icon-btn {
+  @apply p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700;
+  @apply transition-colors duration-200;
+}
+
+.toolbar-btn {
+  @apply inline-flex items-center gap-2 px-3 py-2;
+  @apply bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300;
+  @apply hover:bg-gray-200 dark:hover:bg-gray-600;
+  @apply rounded-lg font-medium transition-all duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600;
 }
 
 /* 编辑器底部 */
@@ -639,7 +634,32 @@ onUnmounted(stopPolling)
   @apply bg-emerald-100 dark:bg-emerald-900/30;
 }
 
-:deep(.CodeMirror-activeline-background) {
+/* 过渡动画 */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* CodeMirror 样式定制 */
+:deep(.cm-editor) {
+  @apply border-0 outline-none;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+:deep(.cm-focused) {
+  @apply outline-none;
+}
+
+:deep(.cm-content) {
+  @apply p-4;
+  min-height: 400px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
+}
+
+:deep(.cm-activeLine) {
   @apply bg-emerald-50 dark:bg-emerald-900/20;
 }
 
@@ -673,12 +693,5 @@ onUnmounted(stopPolling)
   .problem-content {
     @apply shadow-gray-900/20;
   }
-}
-
-/* 过渡动画 */
-* {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
 }
 </style>

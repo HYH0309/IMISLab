@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -52,4 +54,26 @@ func FailWithData(c *gin.Context, statusCode int, msg string, data interface{}) 
 		Msg:    msg,
 		Data:   data,
 	})
+}
+
+// LogError 记录错误日志
+func LogError(message string, err error) {
+	if err != nil {
+		log.Printf("[ERROR] %s: %v", message, err)
+	}
+}
+
+// ToJSONString 将对象转换为JSON字符串
+func ToJSONString(obj interface{}) string {
+	bytes, err := json.Marshal(obj)
+	if err != nil {
+		LogError("JSON序列化失败", err)
+		return ""
+	}
+	return string(bytes)
+}
+
+// ParseJSONString 将JSON字符串解析为对象
+func ParseJSONString(jsonStr string, obj interface{}) error {
+	return json.Unmarshal([]byte(jsonStr), obj)
 }

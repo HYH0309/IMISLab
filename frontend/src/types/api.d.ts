@@ -11,6 +11,7 @@ export interface ArticleContent {
   summary?: string
   tagIds: number[]
   coverUrl?: string
+  views: number // 添加阅读量字段
   createdAt: string
   updatedAt: string
 }
@@ -20,6 +21,7 @@ export interface ArticleSummary {
   title: string
   summary: string
   tagIds: number[]
+  views: number // 添加阅读量字段
   createdAt: string
   coverUrl?: string
 }

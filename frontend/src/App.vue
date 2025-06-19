@@ -54,10 +54,7 @@ provide('handleError', handleGlobalError)
       <Suspense>
         <template #default>
           <RouterView v-slot="{ Component, route }">
-            <Transition
-              :name="route.meta.transition as string || 'fade'"
-              mode="out-in"
-              appear>
+            <Transition :name="route.meta.transition as string || 'fade'" mode="out-in" appear>
               <component :is="Component" :key="route.path" />
             </Transition>
           </RouterView>
@@ -174,8 +171,10 @@ provide('handleError', handleGlobalError)
   @apply fixed inset-0;
   @apply bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm;
   @apply flex items-center justify-center;
-  z-index: var(--z-loading, 95) !important; /* 强制高优先级 */
-  pointer-events: auto; /* 确保可以交互 */
+  z-index: var(--z-loading, 95) !important;
+  /* 强制高优先级 */
+  pointer-events: auto;
+  /* 确保可以交互 */
 }
 
 .loading-content {
@@ -199,8 +198,10 @@ provide('handleError', handleGlobalError)
   @apply fixed inset-0;
   @apply bg-red-50/95 dark:bg-red-900/95 backdrop-blur-sm;
   @apply flex items-center justify-center;
-  z-index: var(--z-error, 100) !important; /* 最高优先级 */
-  pointer-events: auto; /* 确保可以交互 */
+  z-index: var(--z-error, 100) !important;
+  /* 最高优先级 */
+  pointer-events: auto;
+  /* 确保可以交互 */
 }
 
 .error-content {
@@ -287,8 +288,10 @@ provide('handleError', handleGlobalError)
 /* 响应式z-index调整 */
 @media (max-width: 768px) {
   :root {
-    --z-navbar: 45; /* 移动端导航栏提高优先级 */
-    --z-theme-toggle: 25; /* 移动端主题切换降低优先级 */
+    --z-navbar: 45;
+    /* 移动端导航栏提高优先级 */
+    --z-theme-toggle: 25;
+    /* 移动端主题切换降低优先级 */
   }
 
   .loading-spinner {
@@ -325,6 +328,7 @@ html {
 
 /* 无障碍优化 - 减少动画 */
 @media (prefers-reduced-motion: reduce) {
+
   .fade-enter-active,
   .fade-leave-active,
   .slide-left-enter-active,

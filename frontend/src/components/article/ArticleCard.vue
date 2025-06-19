@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ArticleSummary, Tag } from '@/types/api';
-import { CalendarIcon } from '@heroicons/vue/24/outline'
+import { CalendarIcon, EyeIcon } from '@heroicons/vue/24/outline'
 import { computed } from 'vue'
 
 interface Props {
@@ -93,6 +93,11 @@ const onImageError = (event: Event) => {
             <time :datetime="article.createdAt.toString()">
               {{ formatDate(article.createdAt.toString()) }}
             </time>
+          </div>
+          <span class="meta-divider">·</span>
+          <div class="meta-item">
+            <EyeIcon class="meta-icon" />
+            <span>{{ article.views || 0 }} 次阅读</span>
           </div>
         </div>
       </div>

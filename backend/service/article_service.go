@@ -70,12 +70,12 @@ func GetArticleList(page, pageSize int) ([]dto.ArticleListResponse, error) {
 		for _, tag := range a.Tags {
 			tagIds = append(tagIds, tag.ID)
 		}
-
 		list = append(list, dto.ArticleListResponse{
 			ID:        a.ID,
 			Title:     a.Title,
 			Summary:   a.Summary,
 			CoverUrl:  a.CoverUrl,
+			Views:     a.Views, // 添加阅读量字段
 			TagIds:    tagIds,
 			CreatedAt: a.CreatedAt.Format("2006-01-02 15:04:05"),
 			UpdatedAt: a.UpdatedAt.Format("2006-01-02 15:04:05"),
@@ -206,6 +206,7 @@ func mapToResponse(article entity.Article) *dto.ArticleResponse {
 		Content:   article.Content,
 		Summary:   article.Summary,
 		CoverUrl:  article.CoverUrl,
+		Views:     article.Views, // 添加阅读量字段
 		TagIds:    tagIds,
 		CreatedAt: article.CreatedAt.Format("2006-01-02 15:04:05"),
 		UpdatedAt: article.UpdatedAt.Format("2006-01-02 15:04:05"),

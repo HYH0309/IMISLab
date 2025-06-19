@@ -14,8 +14,8 @@ export const Z_INDEX = {
   TOOLTIP: 20,
   PROGRESS_BAR: 25,
   THEME_TOGGLE: 30,
-  NAVBAR: 40,
-  MUSIC_PLAYER: 50,
+  MUSIC_PLAYER: 35, // 音乐播放器在导航栏下方
+  NAVBAR: 40, // 导航栏在音乐播放器上方
 
   // 弹窗层级 (51-90)
   MODAL_BACKDROP: 60,

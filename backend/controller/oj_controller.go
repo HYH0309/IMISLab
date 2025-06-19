@@ -114,8 +114,23 @@ func CreateTestcase(c *gin.Context) {
 	utils.Success(c, createdTestcases, "批量测试用例创建成功")
 }
 
-// SubmitCode 提交代码进行评测
+// SubmitCode 提交代码进行评测（带频率限制）
 func SubmitCode(c *gin.Context) {
+	// 获取客户端IP
+	clientIP := c.ClientIP()
+
+	// 检查提交频率限制
+	redisService := &service.RedisService{}
+	allowed, err := redisService.CheckOJSubmitRateLimit(clientIP)
+	if err != nil {
+		utils.LogError("检查OJ提交频率限制失败", err)
+		// 即使Redis失败也允许提交，不影响核心功能
+	} else if !allowed {
+		// 超过频率限制，返回429状态码
+		utils.Fail(c, http.StatusTooManyRequests, "提交过于频繁，请稍后再试。每分钟最多提交5次。")
+		return
+	}
+
 	var req dto.CodeSubmitRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.Fail(c, http.StatusBadRequest, "无效的请求参数: "+err.Error())

@@ -10,20 +10,14 @@ const emit = defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <RadioGroup
-    :model-value="modelValue"
-    @update:model-value="emit('update:modelValue', $event)"
+  <RadioGroup :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)"
     class="language-selector">
     <div class="options-container">
-      <RadioGroupOption
-        v-for="lang in languages"
-        :key="lang.value"
-        :value="lang.value"
-        v-slot="{ checked }"
+      <RadioGroupOption v-for="lang in languages" :key="lang.value" :value="lang.value" v-slot="{ checked }"
         class="language-option">
         <div class="option-content" :class="{ 'option-selected': checked }">
           <div class="language-icon">
-            <span :class="lang.icon" class="w-4 h-4"></span>
+            <span class="text-sm">{{ lang.icon }}</span>
           </div>
           <span class="language-label">{{ lang.label }}</span>
           <div v-if="checked" class="selected-indicator">
