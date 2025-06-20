@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch } from 'vue'
 import {
   GlobeAltIcon,
   AcademicCapIcon,
@@ -11,25 +11,16 @@ import {
   EnvelopeIcon
 } from '@heroicons/vue/24/outline'
 import { Icon } from '@iconify/vue'
+import { Motion } from 'motion-v'
 
-// Tab 指示器动画状态
-const selectedTabIndex = ref(0)
-const tabIndicatorStyle = ref({
-  transform: 'translateX(0px)',
-  width: '140px'
-})
+// 导入头像图片
+import hyAvatar from '@/assets/hy.jpg'
+import zyxAvatar from '@/assets/zyx.jpg'
+import zxAvatar from '@/assets/zx.jpg'
+import zhAvatar from '@/assets/zh.jpg'
+import shbAvatar from '@/assets/shb.jpg'
 
-// 更新指示器位置
-const updateIndicator = (index: number) => {
-  selectedTabIndex.value = index
-  nextTick(() => {
-    const tabWidth = 140 + 8 // tab最小宽度 + 间距
-    tabIndicatorStyle.value = {
-      transform: `translateX(${index * tabWidth}px)`,
-      width: '140px'
-    }
-  })
-}
+// Tab 状态
 </script>
 
 <template>
@@ -38,16 +29,19 @@ const updateIndicator = (index: number) => {
     <section class="hero-section">
       <div class="hero-content">
         <div class="hero-avatar">
-          <UserIcon class="w-24 h-24 text-blue-600 dark:text-blue-400" />
+          <img :src="hyAvatar" alt="HY头像"
+            class="w-24 h-24 rounded-full object-cover border-4 border-blue-500/30 shadow-xl" />
         </div>
         <h1 class="hero-title">
-          👨‍💻 华农 IMIS 在读程序员
+          😈 华农 IMIS 核废料级程序员 · 架构师（预备役）
         </h1>
         <p class="hero-subtitle">
-          正在学习现代Web开发 · 偶尔写写有趣的小项目
+          专业屎山代码重构 · 技术负债证券化中 · 伪全栈开发（前后端一起崩但能修好）
         </p>
         <p class="hero-description">
-          华南农业大学在读学生，热爱Web开发，享受编程乐趣。
+          👋 Hi, I'm HYH0309 · 🎓 IMIS/SCAU · 💡 心之所向，素履以往 · 🌱 正在学习/研究全栈开发
+          <br />
+          <span class="hero-motto">"在紫荆桥下写的 bug，终将成为架构师勋章" —— 自欺欺人版IMIS格言</span>
         </p>
         <div class="hero-contact">
           <div class="contact-links">
@@ -59,6 +53,10 @@ const updateIndicator = (index: number) => {
               <Icon icon="mdi:github" class="w-5 h-5" />
               <span>GitHub</span>
             </a>
+            <a href="http://www.hyh0209.cn/" target="_blank" class="contact-link website">
+              <Icon icon="mdi:web" class="w-5 h-5" />
+              <span>我的个人网站</span>
+            </a>
             <div class="contact-link location">
               <Icon icon="mdi:map-marker" class="w-5 h-5" />
               <span>华南农业大学</span>
@@ -66,11 +64,17 @@ const updateIndicator = (index: number) => {
           </div>
         </div>
         <div class="hero-badges">
-          <div class="badge">
-            📚 持续学习中
+          <div class="badge badge-warning">
+            🏗️ 屎山改造率 3.14%
           </div>
-          <div class="badge">
-            🎯 追求卓越
+          <div class="badge badge-info">
+            💡 技术负债证券化中
+          </div>
+          <div class="badge badge-success">
+            🧪 毒物配制专家
+          </div>
+          <div class="badge badge-danger">
+            🔥 Bug自动孵化器
           </div>
         </div>
       </div>
@@ -78,55 +82,119 @@ const updateIndicator = (index: number) => {
 
     <!-- 主要内容区域 -->
     <main class="main-content">
+      <!-- 我的队友分区 -->
+      <section class="section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">👥 我的队友</h2>
+            <p class="section-subtitle">一起奋斗的小伙伴们</p>
+          </div>
+
+          <div class="teammates-grid">
+            <Motion :animate="{ y: [0, -12, 0], scale: [1, 1.08, 1] }"
+              :transition="{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0 }">
+              <div class="teammate-card">
+                <div class="teammate-avatar">
+                  <Motion :animate="{ rotateY: [0, 5, -5, 0] }"
+                    :transition="{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }">
+                    <img :src="zyxAvatar" alt="ZYX" class="w-24 h-24 rounded-full object-cover" />
+                  </Motion>
+                  <div class="avatar-overlay">
+                    <span class="avatar-text">ZYX</span>
+                  </div>
+                </div>
+                <h3 class="teammate-name">ZYX</h3>
+                <p class="teammate-role">创意提供</p>
+              </div>
+            </Motion>
+
+            <Motion :animate="{ y: [0, -12, 0], scale: [1, 1.08, 1] }"
+              :transition="{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }">
+              <div class="teammate-card">
+                <div class="teammate-avatar">
+                  <Motion :animate="{ rotateY: [0, 5, -5, 0] }"
+                    :transition="{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }">
+                    <img :src="zxAvatar" alt="ZX" class="w-24 h-24 rounded-full object-cover" />
+                  </Motion>
+                  <div class="avatar-overlay">
+                    <span class="avatar-text">ZX</span>
+                  </div>
+                </div>
+                <h3 class="teammate-name">ZX</h3>
+                <p class="teammate-role">资源收集</p>
+              </div>
+            </Motion>
+
+            <Motion :animate="{ y: [0, -12, 0], scale: [1, 1.08, 1] }"
+              :transition="{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }">
+              <div class="teammate-card">
+                <div class="teammate-avatar">
+                  <Motion :animate="{ rotateY: [0, 5, -5, 0] }"
+                    :transition="{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.0 }">
+                    <img :src="zhAvatar" alt="ZH" class="w-24 h-24 rounded-full object-cover" />
+                  </Motion>
+                  <div class="avatar-overlay">
+                    <span class="avatar-text">ZH</span>
+                  </div>
+                </div>
+                <h3 class="teammate-name">ZH</h3>
+                <p class="teammate-role">样式优化</p>
+              </div>
+            </Motion>
+
+            <Motion :animate="{ y: [0, -12, 0], scale: [1, 1.08, 1] }"
+              :transition="{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }">
+              <div class="teammate-card">
+                <div class="teammate-avatar">
+                  <Motion :animate="{ rotateY: [0, 5, -5, 0] }"
+                    :transition="{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.4 }">
+                    <img :src="shbAvatar" alt="SHB" class="w-24 h-24 rounded-full object-cover" />
+                  </Motion>
+                  <div class="avatar-overlay">
+                    <span class="avatar-text">SHB</span>
+                  </div>
+                </div>
+                <h3 class="teammate-name">SHB</h3>
+                <p class="teammate-role">数据验证</p>
+              </div>
+            </Motion>
+          </div>
+        </div>
+      </section>
+
       <!-- 技能与项目标签页 -->
       <section class="section">
         <div class="container">
           <div class="section-header">
             <h2 class="section-title">💻 技能与项目</h2>
-            <p class="section-subtitle">技术栈与项目展示</p>
           </div>
 
           <!-- Headless UI 标签页 -->
-          <TabGroup as="div" class="relative" @change="updateIndicator">
+          <TabGroup as="div" class="relative">
             <TabList
               class="relative flex space-x-2 rounded-2xl bg-white/70 dark:bg-gray-800/70 p-2 shadow-2xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30 w-fit mx-auto overflow-hidden">
-              <!-- 动态滑动指示器 -->
-              <div 
-                class="absolute top-2 bottom-2 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-lg transition-all duration-500 ease-[cubic-bezier(0.4,0.0,0.2,1)]"
-                :style="tabIndicatorStyle">
-                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/30 to-purple-400/30 blur-md"></div>
-              </div>
-              
+
               <Tab as="template" v-slot="{ selected }">
                 <button :class="[
-                  'relative z-10 flex items-center gap-2.5 rounded-xl py-3 px-6 text-sm font-semibold transition-all duration-300 ease-out',
-                  'focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-transparent',
-                  'hover:scale-105 transform-gpu min-w-[140px] justify-center',
+                  'relative z-10 flex items-center gap-2.5 rounded-xl py-3 px-6 text-sm font-semibold transition-all duration-300 ease-out hover:scale-105 transform-gpu min-w-[140px] justify-center focus:outline-none',
                   selected
-                    ? 'text-white shadow-lg'
-                    : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white/30 dark:hover:bg-gray-700/30',
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-700/30'
                 ]">
-                  <LightBulbIcon :class="[
-                    'w-5 h-5 transition-all duration-300',
-                    selected ? 'text-white drop-shadow-sm animate-pulse' : 'text-gray-500 dark:text-gray-400'
-                  ]" />
+                  <LightBulbIcon class="w-5 h-5 transition-all duration-300" :class="selected ? 'animate-pulse' : ''" />
                   <span class="font-bold tracking-wide">正在学习</span>
                 </button>
               </Tab>
-              
+
               <Tab as="template" v-slot="{ selected }">
                 <button :class="[
-                  'relative z-10 flex items-center gap-2.5 rounded-xl py-3 px-6 text-sm font-semibold transition-all duration-300 ease-out',
-                  'focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-2 focus:ring-offset-transparent',
-                  'hover:scale-105 transform-gpu min-w-[140px] justify-center',
+                  'relative z-10 flex items-center gap-2.5 rounded-xl py-3 px-6 text-sm font-semibold transition-all duration-300 ease-out hover:scale-105 transform-gpu min-w-[140px] justify-center focus:outline-none',
                   selected
-                    ? 'text-white shadow-lg'
-                    : 'text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-white/30 dark:hover:bg-gray-700/30',
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-700/30'
                 ]">
-                  <RocketLaunchIcon :class="[
-                    'w-5 h-5 transition-all duration-300',
-                    selected ? 'text-white drop-shadow-sm animate-bounce' : 'text-gray-500 dark:text-gray-400'
-                  ]" />
+                  <RocketLaunchIcon class="w-5 h-5 transition-all duration-300"
+                    :class="selected ? 'animate-bounce' : ''" />
                   <span class="font-bold tracking-wide">我的项目</span>
                 </button>
               </Tab>
@@ -141,6 +209,51 @@ const updateIndicator = (index: number) => {
                 'data-[headlessui-state~=selected]:animate-slideIn',
               ]" style="animation-fill-mode: both;">
                 <div class="learning-content">
+                  <div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="learning-plan-card">
+                        <div class="flex items-center gap-3 mb-4">
+                          <div class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                          <h4 class="font-bold text-lg text-gray-800 dark:text-white">前端进阶</h4>
+                        </div>
+                        <ul class="space-y-2">
+                          <li class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                            <span class="text-green-500">✓</span>
+                            Vue 3 Composition API
+                          </li>
+                          <li class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                            <span class="text-yellow-500">◐</span>
+                            TypeScript 高级特性
+                          </li>
+                          <li class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                            <span class="text-blue-500">○</span>
+                            Nuxt.js 全栈框架
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div class="learning-plan-card">
+                        <div class="flex items-center gap-3 mb-4">
+                          <div class="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                          <h4 class="font-bold text-lg text-gray-800 dark:text-white">后端探索</h4>
+                        </div>
+                        <ul class="space-y-2">
+                          <li class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                            <span class="text-green-500">✓</span>
+                            Go 语言基础语法
+                          </li>
+                          <li class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                            <span class="text-yellow-500">◐</span>
+                            Gin 框架开发
+                          </li>
+                          <li class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                            <span class="text-blue-500">○</span>
+                            微服务架构
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
 
                   <div class="skills-progress">
                     <div class="skill-item">
@@ -309,9 +422,7 @@ const updateIndicator = (index: number) => {
                 'backdrop-blur-xl transition-all duration-700 ease-out transform',
                 'data-[headlessui-state~=selected]:animate-slideIn',
               ]" style="animation-fill-mode: both;">
-                <div class="projects-subtitle mb-8">
-                  <p class="text-gray-600 dark:text-gray-400 text-center font-medium">一些作品展示</p>
-                </div>
+
                 <div class="project-grid">
                   <div class="project-card">
                     <div class="project-header">
@@ -523,6 +634,7 @@ const updateIndicator = (index: number) => {
     opacity: 0;
     transform: translateY(24px) scale(0.95);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -534,6 +646,7 @@ const updateIndicator = (index: number) => {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -544,6 +657,7 @@ const updateIndicator = (index: number) => {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -631,6 +745,11 @@ const updateIndicator = (index: number) => {
   @apply text-base md:text-lg mb-8 text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed;
 }
 
+.hero-motto {
+  @apply block text-sm text-gray-500 dark:text-gray-400 italic mt-3 border-l-2 border-orange-400 pl-3;
+  @apply bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 px-3 py-2 rounded-r-lg;
+}
+
 .hero-contact {
   @apply mb-8;
 }
@@ -655,12 +774,32 @@ const updateIndicator = (index: number) => {
   @apply bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300;
 }
 
+.contact-link.website {
+  @apply bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-800/40;
+}
+
 .hero-badges {
   @apply flex flex-wrap justify-center gap-4;
 }
 
 .badge {
   @apply px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300;
+}
+
+.badge-info {
+  @apply bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300;
+}
+
+.badge-success {
+  @apply bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300;
+}
+
+.badge-danger {
+  @apply bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300;
 }
 
 /* 主要内容 */
@@ -684,13 +823,82 @@ const updateIndicator = (index: number) => {
   @apply text-3xl font-bold mb-4 text-gray-900 dark:text-white;
 }
 
-.section-subtitle {
-  @apply text-lg text-gray-600 dark:text-gray-400;
-}
 
 /* 技能学习部分 */
 .learning-content {
   @apply space-y-6;
+}
+
+/* 学习计划卡片 */
+.learning-plan-card {
+  @apply bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 border border-white/30 dark:border-gray-700/30;
+  @apply hover:shadow-lg transition-all duration-300 hover:scale-[1.02] hover:bg-white/80 dark:hover:bg-gray-800/80;
+}
+
+/* 学习资源卡片 */
+.learning-resource-card {
+  @apply bg-gradient-to-br from-white/70 to-blue-50/50 dark:from-gray-800/70 dark:to-gray-900/50;
+  @apply backdrop-blur-sm rounded-xl p-4 border border-white/30 dark:border-gray-700/30;
+  @apply hover:shadow-md transition-all duration-300 hover:scale-105;
+  @apply text-center;
+}
+
+/* 学习目标卡片 */
+.learning-goal-card {
+  @apply bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 border border-white/30 dark:border-gray-700/30;
+  @apply hover:shadow-lg transition-all duration-300;
+}
+
+.goal-item {
+  @apply p-3 bg-gray-50/50 dark:bg-gray-900/30 rounded-lg;
+}
+
+/* 队友分区样式 */
+.teammates-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto;
+}
+
+.teammate-card {
+  @apply bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-3xl p-8 border border-white/30 dark:border-gray-700/30;
+  @apply hover:shadow-2xl transition-all duration-500 ease-out hover:scale-110 hover:bg-white/90 dark:hover:bg-gray-800/90;
+  @apply text-center group cursor-pointer relative overflow-hidden;
+  @apply hover:-translate-y-2 transform-gpu;
+}
+
+.teammate-card:before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10;
+  @apply opacity-0 group-hover:opacity-100 transition-opacity duration-500;
+}
+
+.teammate-avatar {
+  @apply mb-6 flex justify-center relative;
+}
+
+.teammate-avatar img {
+  @apply border-4 border-blue-500/20 group-hover:border-purple-500/60 transition-all duration-500;
+  @apply shadow-xl group-hover:shadow-2xl group-hover:shadow-purple-500/25;
+  @apply group-hover:scale-110 transform-gpu;
+}
+
+.avatar-overlay {
+  @apply absolute inset-0 flex items-center justify-center bg-black/60 text-white font-bold text-lg;
+  @apply rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300;
+  @apply backdrop-blur-sm;
+}
+
+.avatar-text {
+  @apply transform scale-75 group-hover:scale-100 transition-transform duration-300;
+}
+
+.teammate-name {
+  @apply text-xl font-bold text-gray-800 dark:text-white mb-3 relative z-10;
+  @apply group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors duration-300;
+}
+
+.teammate-role {
+  @apply text-base text-gray-600 dark:text-gray-400 relative z-10;
+  @apply group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300;
 }
 
 .learning-description {
@@ -932,9 +1140,17 @@ const updateIndicator = (index: number) => {
 
 /* 动态渐变背景 */
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .gradient-animated {
@@ -949,20 +1165,26 @@ const updateIndicator = (index: number) => {
     opacity: 0;
     transform: translateY(8px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-[role="tabpanel"] > * {
+[role="tabpanel"]>* {
   animation: tabContentFadeIn 0.5s ease-out;
 }
 
 /* 图标旋转动画 */
 @keyframes iconSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .icon-spin {
@@ -976,9 +1198,12 @@ const updateIndicator = (index: number) => {
 
 /* 选中状态的脉冲效果 */
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
   }
+
   50% {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(139, 92, 246, 0.4);
   }
@@ -1029,5 +1254,149 @@ const updateIndicator = (index: number) => {
   .skills-progress {
     @apply grid-cols-1 gap-4;
   }
+}
+
+/* 循环动画定义 */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes bounce-gentle {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes sway {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(1deg);
+  }
+
+  75% {
+    transform: rotate(-1deg);
+  }
+}
+
+@keyframes heartbeat {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 40px rgba(147, 51, 234, 0.3);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes rotate-subtle {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    filter: hue-rotate(0deg) brightness(1);
+  }
+
+  25% {
+    filter: hue-rotate(90deg) brightness(1.1);
+  }
+
+  50% {
+    filter: hue-rotate(180deg) brightness(1.2);
+  }
+
+  75% {
+    filter: hue-rotate(270deg) brightness(1.1);
+  }
+
+  100% {
+    filter: hue-rotate(360deg) brightness(1);
+  }
+}
+
+/* 动画类 */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2.5s ease-in-out infinite;
+}
+
+.animate-sway {
+  animation: sway 4s ease-in-out infinite;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 2s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+.animate-rotate-subtle {
+  animation: rotate-subtle 20s linear infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 4s ease-in-out infinite;
 }
 </style>

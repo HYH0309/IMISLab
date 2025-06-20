@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, onMounted } from 'vue'
 import {
   HomeIcon,
   DocumentTextIcon,
@@ -29,22 +29,99 @@ const mobileRoutes = [
 ]
 
 // 响应式路由选择
-const isMobile = ref(window.innerWidth <= 768)
+const MOBILE_BREAKPOINT = 768
+
+const isMobile = ref(window.innerWidth <= MOBILE_BREAKPOINT)
 const routes = computed(() => isMobile.value ? mobileRoutes : desktopRoutes)
 
-// 监听窗口大小变化
-const handleResize = () => {
-  isMobile.value = window.innerWidth <= 768
-}
+// 移动端导航栏显示状态（始终可见）
+const isNavVisible = ref(true)
 
-window.addEventListener('resize', handleResize)
+// 滑动手势相关
+const touchStartX = ref(0)
+const touchStartY = ref(0)
+const touchEndX = ref(0)
+const touchEndY = ref(0)
+const isSwipeDetected = ref(false)
+const swipeThreshold = 50 // 最小滑动距离
+const swipeAngleThreshold = 30 // 角度阈值（度）
 
+// 桌面端展开/收缩
 const isExpanded = ref(false)
 const navWidth = computed(() => isExpanded.value ? '12.5rem' : '2.5rem')
 let collapseTimer: ReturnType<typeof setTimeout>
 
 const navRef = ref<HTMLElement | null>(null)
 
+// 监听窗口大小变化
+const handleResize = () => {
+  const wasMobile = isMobile.value
+  isMobile.value = window.innerWidth <= MOBILE_BREAKPOINT
+
+  // 如果从桌面端切换到移动端，添加触摸事件监听器
+  if (!wasMobile && isMobile.value) {
+    document.addEventListener('touchstart', handleTouchStart, { passive: true })
+    document.addEventListener('touchmove', handleTouchMove, { passive: true })
+    document.addEventListener('touchend', handleTouchEnd, { passive: true })
+  }
+  // 如果从移动端切换到桌面端，移除触摸事件监听器
+  else if (wasMobile && !isMobile.value) {
+    document.removeEventListener('touchstart', handleTouchStart)
+    document.removeEventListener('touchmove', handleTouchMove)
+    document.removeEventListener('touchend', handleTouchEnd)
+  }
+
+  // 确保导航栏始终可见
+  isNavVisible.value = true
+}
+
+// 滑动手势处理
+const handleTouchStart = (e: TouchEvent) => {
+  if (!isMobile.value) return
+
+  touchStartX.value = e.touches[0].clientX
+  touchStartY.value = e.touches[0].clientY
+  isSwipeDetected.value = false
+}
+
+const handleTouchMove = (e: TouchEvent) => {
+  if (!isMobile.value) return
+
+  touchEndX.value = e.touches[0].clientX
+  touchEndY.value = e.touches[0].clientY
+}
+
+const handleTouchEnd = () => {
+  if (!isMobile.value || isSwipeDetected.value) return
+
+  const deltaX = touchEndX.value - touchStartX.value
+  const deltaY = touchEndY.value - touchStartY.value
+  const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+
+  // 检查是否满足最小滑动距离
+  if (distance < swipeThreshold) return
+
+  // 计算滑动角度
+  const angle = Math.abs(Math.atan2(deltaY, deltaX) * 180 / Math.PI)
+
+  // 检查是否为水平滑动（角度小于阈值或大于 180-阈值）
+  const isHorizontalSwipe = angle < swipeAngleThreshold || angle > (180 - swipeAngleThreshold)
+
+  if (!isHorizontalSwipe) return
+
+  isSwipeDetected.value = true
+
+  // 左滑隐藏，右滑显示
+  if (deltaX < -swipeThreshold) {
+    // 左滑隐藏导航栏
+    isNavVisible.value = false
+  } else if (deltaX > swipeThreshold) {
+    // 右滑显示导航栏
+    isNavVisible.value = true
+  }
+}
+
+// 桌面端展开/收缩函数
 const expand = () => {
   // 移动端不展开
   if (isMobile.value) return
@@ -60,17 +137,44 @@ const collapse = () => {
   }, 300)
 }
 
+// 点击导航链接处理
+const handleNavClick = () => {
+  // 移动端保持导航栏可见
+  if (isMobile.value) {
+    isNavVisible.value = true
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+
+  // 添加全局触摸事件监听器（仅移动端）
+  if (isMobile.value) {
+    document.addEventListener('touchstart', handleTouchStart, { passive: true })
+    document.addEventListener('touchmove', handleTouchMove, { passive: true })
+    document.addEventListener('touchend', handleTouchEnd, { passive: true })
+  }
+})
+
 onUnmounted(() => {
   clearTimeout(collapseTimer)
   window.removeEventListener('resize', handleResize)
+
+  // 移除触摸事件监听器
+  document.removeEventListener('touchstart', handleTouchStart)
+  document.removeEventListener('touchmove', handleTouchMove)
+  document.removeEventListener('touchend', handleTouchEnd)
 })
 </script>
 
 <template>
-  <nav ref="navRef" class="nav-container" :style="{ width: isMobile ? '100%' : navWidth }"
-    :class="{ 'mobile-nav': isMobile, 'desktop-nav': !isMobile }" @mouseenter="expand" @mouseleave="collapse">
+  <nav ref="navRef" class="nav-container" :style="{ width: isMobile ? '100%' : navWidth }" :class="{
+    'mobile-nav': isMobile,
+    'desktop-nav': !isMobile,
+    'nav-hidden': isMobile && !isNavVisible
+  }" @mouseenter="expand" @mouseleave="collapse">
     <RouterLink v-for="(route, index) in routes" :key="route.path" :to="route.path" class="nav-link"
-      :class="{ 'active': $route.path === route.path }" :style="`--delay: ${index * 0.05}s`">
+      :class="{ 'active': $route.path === route.path }" :style="`--delay: ${index * 0.05}s`" @click="handleNavClick">
       <component :is="route.icon" class="nav-icon" />
       <span class="nav-text" :class="{ 'expanded': isExpanded || isMobile }">
         {{ route.text }}
@@ -101,38 +205,51 @@ onUnmounted(() => {
 /* 移动端适配 */
 @media (max-width: 768px) {
   .nav-container {
-    /* 移动端改为底部导航，避免与音乐播放器冲突 */
+    /* 固定到底部 */
     @apply fixed bottom-0 left-0 right-0 top-auto;
-    @apply w-full h-auto max-h-20 py-2 px-4;
+    @apply w-full h-auto py-3 px-4;
     @apply flex-row justify-around items-center gap-2;
     @apply rounded-none rounded-t-2xl transform-none;
-    backdrop-filter: blur(12px);
-    background: rgba(var(--muted-rgb, 148 163 184), 0.8);
-    border-top: 1px solid rgba(var(--border-rgb, 203 213 225), 0.3);
+    backdrop-filter: blur(16px);
+    background: rgba(var(--muted-rgb, 148 163 184), 0.85);
+    border-top: 1px solid rgba(var(--border-rgb, 203 213 225), 0.4);
 
-    /* 确保在音乐播放器上方 */
-    z-index: var(--z-navbar, 45);
+    /* 确保在其他元素上方 */
+    z-index: var(--z-navbar, 50);
 
-    /* 为音乐播放器留出空间 */
-    margin-bottom: env(safe-area-inset-bottom, 0);
-    padding-bottom: calc(env(safe-area-inset-bottom, 0) + 0.5rem);
+    /* 为安全区域留出空间 */
+    padding-bottom: max(env(safe-area-inset-bottom, 0), 0.75rem);
+    min-height: calc(3.5rem + env(safe-area-inset-bottom, 0));
   }
 
   .mobile-nav {
     /* 移动端特定样式 */
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
     width: 100% !important;
+  }
+
+  /* 移动端导航栏隐藏状态 */
+  .nav-hidden {
+    transform: translateY(100%) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* 显示状态的过渡 */
+  .mobile-nav:not(.nav-hidden) {
+    transform: translateY(0) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 }
 
 /* 超小屏幕优化 */
 @media (max-width: 480px) {
   .nav-container {
-    @apply py-1.5 px-2 gap-1;
-    /* 在小屏幕上为音乐播放器预留更多空间 */
-    margin-bottom: calc(env(safe-area-inset-bottom, 0) + 60px);
+    @apply py-2.5 px-2 gap-1;
+    /* 更紧凑的布局 */
+    min-height: calc(3rem + env(safe-area-inset-bottom, 0));
   }
 }
 
@@ -168,20 +285,29 @@ onUnmounted(() => {
 /* 移动端导航链接适配 */
 @media (max-width: 768px) {
   .nav-link {
-    @apply flex-col justify-center px-2 py-1 min-w-0 flex-1;
-    @apply rounded-lg;
+    @apply flex-col justify-center px-2 py-2 min-w-0 flex-1;
+    @apply rounded-lg transition-all duration-200;
+    /* 触摸友好的最小尺寸 */
+    min-height: 44px;
 
     &:hover {
       @apply bg-background/30;
-      transform: translateY(-2px);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      @apply bg-background/40 scale-95;
+      transform: translateY(0);
     }
 
     &.active {
-      background: linear-gradient(180deg, transparent, var(--primary)/15%);
+      background: linear-gradient(180deg, transparent, var(--primary)/20%);
+      @apply shadow-sm;
 
       &::before {
         @apply bottom-0 left-1/2 transform -translate-x-1/2;
-        @apply w-[60%] h-0.5 rounded-t-full;
+        @apply w-[70%] h-1 rounded-t-full bg-primary;
+        box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.4);
       }
     }
   }
@@ -189,14 +315,38 @@ onUnmounted(() => {
 
 /* 触摸设备优化 */
 @media (hover: none) and (pointer: coarse) {
-  .nav-link:hover {
-    transform: none;
-    @apply bg-background/25;
+  .nav-link {
+
+    /* 移除桌面端 hover 效果 */
+    &:hover {
+      transform: none;
+      @apply bg-transparent;
+    }
+
+    /* 优化触摸反馈 */
+    &:active {
+      @apply bg-background/40 scale-95;
+      transition: all 0.1s ease-out;
+    }
   }
 
-  .nav-link:active {
-    @apply bg-background/40 scale-95;
-    transition: all 0.1s ease-out;
+  /* 移动端触摸优化 */
+  @media (max-width: 768px) {
+    .nav-link {
+      &:hover {
+        @apply bg-transparent;
+        transform: none;
+      }
+
+      &:active {
+        @apply bg-primary/20 scale-95;
+        transition: all 0.15s ease-out;
+      }
+
+      &.active:active {
+        @apply bg-primary/30;
+      }
+    }
   }
 }
 
@@ -325,15 +475,48 @@ onUnmounted(() => {
 /* 暗色模式适配 */
 @media (prefers-color-scheme: dark) {
   .nav-container {
-    background: rgba(15, 23, 42, 0.8);
-    border-color: rgba(51, 65, 85, 0.3);
+    background: rgba(15, 23, 42, 0.85);
+    border-color: rgba(51, 65, 85, 0.4);
   }
 
   @media (max-width: 768px) {
     .nav-container {
       background: rgba(15, 23, 42, 0.9);
-      border-top-color: rgba(51, 65, 85, 0.4);
+      border-top-color: rgba(51, 65, 85, 0.5);
     }
+  }
+}
+
+/* 全局样式：为移动端页面内容提供底部间距 */
+@media (max-width: 768px) {
+  :global(body) {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0)) !important;
+  }
+
+  /* 为有背景音乐播放器的页面提供额外空间 */
+  :global(body.has-music-player) {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0)) !important;
+  }
+
+  /* 确保主要内容区域不被遮挡 */
+  :global(.main-content),
+  :global(.page-content),
+  :global(.container),
+  :global(main) {
+    padding-bottom: 1rem;
+    margin-bottom: 0;
+  }
+
+  /* 确保文章列表等特定组件的间距 */
+  :global(.articles-section),
+  :global(.article-grid) {
+    margin-bottom: 1.5rem;
+  }
+
+  /* 确保分页组件不被遮挡 */
+  :global(.pagination),
+  :global(.pagination-container) {
+    margin-bottom: 2rem;
   }
 }
 </style>

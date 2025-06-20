@@ -6,7 +6,6 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import Markdown from 'unplugin-vue-markdown/vite'
 import Components from 'unplugin-vue-components/vite'
 import { katex } from '@mdit/plugin-katex'
-import table from 'markdown-it-multimd-table'
 import mermaidItMarkdown from 'mermaid-it-markdown' // Mermaid 图表支持
 import hljsMarkdown from 'markdown-it-highlightjs'
 import { rimraf } from 'rimraf'
@@ -105,7 +104,7 @@ export default defineConfig({
         langPrefix: 'language-', // 代码块的语言类前缀
       },
       markdownItSetup(md) {
-        md.use(hljsMarkdown).use(katex).use(table).use(mermaidItMarkdown)
+        md.use(hljsMarkdown).use(katex).use(mermaidItMarkdown)
       },
       wrapperClasses: 'markdown-body',
     }),

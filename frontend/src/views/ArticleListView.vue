@@ -4,6 +4,7 @@ import ArticleCard from '@/components/article/ArticleCard.vue'
 import ArticleFilter from '@/components/article/ArticleFilter.vue'
 import { api } from '@/api/index'
 import type { ArticleSummary, Tag } from '@/types/api'
+import { Icon } from '@iconify/vue'
 
 const allArticles = ref<ArticleSummary[]>([]) // Initialize as empty array
 const allTags = ref<Tag[]>([]) // Initialize as empty array
@@ -149,7 +150,7 @@ const updateSelectedTags = (val: string[]) => {
       <div class="absolute -bottom-4 -left-4 w-72 h-72 bg-purple-400/20 rounded-full blur-3xl"></div>
     </div>
 
-    <div class="container mx-auto px-4 py-8 relative">
+    <div class="container mx-auto px-4 py-8 relative mobile-optimized">
       <!-- 筛选组件 -->
       <div
         class="backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 rounded-2xl p-6 mb-8 shadow-xl border border-white/20">
@@ -161,7 +162,7 @@ const updateSelectedTags = (val: string[]) => {
       <!-- 状态显示 -->
       <div v-if="isLoading" class="loading-state">
         <div class="flex flex-col items-center justify-center py-20">
-          <div class="loading-spinner"></div>
+          <Icon icon="mdi:loading" class="w-16 h-16 text-blue-500 animate-spin" />
           <p class="mt-6 text-lg text-gray-600 dark:text-gray-300 animate-pulse">正在加载文章...</p>
           <div class="mt-4 flex space-x-2">
             <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
@@ -176,19 +177,11 @@ const updateSelectedTags = (val: string[]) => {
           class="backdrop-blur-sm bg-red-50/80 dark:bg-red-900/20 rounded-2xl p-8 text-center border border-red-200/50">
           <div
             class="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center">
-            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 19c-.77.833.192 2.5 1.732 2.5z">
-              </path>
-            </svg>
+            <Icon icon="mdi:alert-circle" class="w-8 h-8 text-red-500" />
           </div>
           <p class="text-red-700 dark:text-red-300 text-lg font-medium mb-4">{{ error }}</p>
           <button class="retry-btn" @click="onMounted">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-              </path>
-            </svg>
+            <Icon icon="mdi:refresh" class="w-5 h-5 mr-2" />
             重试加载
           </button>
         </div>
@@ -199,11 +192,7 @@ const updateSelectedTags = (val: string[]) => {
           class="backdrop-blur-sm bg-gray-50/80 dark:bg-gray-800/50 rounded-2xl p-12 text-center border border-gray-200/50">
           <div
             class="w-20 h-20 mx-auto mb-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-              </path>
-            </svg>
+            <Icon icon="mdi:file-document-outline" class="w-10 h-10 text-gray-400" />
           </div>
           <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">没有找到文章</h3>
           <p class="text-gray-500 dark:text-gray-400">试试调整搜索条件或稍后再来看看</p>
@@ -252,9 +241,7 @@ const updateSelectedTags = (val: string[]) => {
               <!-- 上一页 -->
               <button class="page-nav-btn" :disabled="currentPage === 1" @click="prevPage"
                 :class="{ 'nav-disabled': currentPage === 1 }" title="上一页">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
+                <Icon icon="mdi:chevron-left" class="w-4 h-4" />
               </button>
 
               <!-- 页码显示/快速跳转 -->
@@ -275,9 +262,7 @@ const updateSelectedTags = (val: string[]) => {
               <!-- 下一页 -->
               <button class="page-nav-btn" :disabled="currentPage === totalPages" @click="nextPage"
                 :class="{ 'nav-disabled': currentPage === totalPages }" title="下一页">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
+                <Icon icon="mdi:chevron-right" class="w-4 h-4" />
               </button>
             </div>
 
@@ -303,9 +288,65 @@ const updateSelectedTags = (val: string[]) => {
 </template>
 
 <style scoped>
-/* 加载动画 */
-.loading-spinner {
-  @apply animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-500 mx-auto;
+/* 加载状态 - 移动端优化 */
+@media (max-width: 640px) {
+  .loading-state .w-16 {
+    @apply w-12 h-12;
+  }
+
+  .loading-state p {
+    @apply text-base;
+  }
+
+  .loading-state .mt-4 {
+    @apply mt-3;
+  }
+}
+
+/* 错误状态移动端优化 */
+@media (max-width: 640px) {
+  .error-state .backdrop-blur-sm {
+    @apply p-6;
+  }
+
+  .error-state .w-16 {
+    @apply w-12 h-12;
+  }
+
+  .error-state .w-8 {
+    @apply w-6 h-6;
+  }
+
+  .error-state p {
+    @apply text-base;
+  }
+
+  .retry-btn {
+    @apply px-4 py-2 text-sm;
+  }
+}
+
+/* 空状态移动端优化 */
+@media (max-width: 640px) {
+  .empty-state .backdrop-blur-sm {
+    @apply p-8;
+  }
+
+  .empty-state .w-20 {
+    @apply w-16 h-16;
+  }
+
+  .empty-state .w-10 {
+    @apply w-8 h-8;
+  }
+
+  .empty-state h3 {
+    @apply text-lg;
+  }
+
+  .empty-state p {
+    @apply text-sm;
+  }
 }
 
 /* 智能标题栏样式 */
@@ -347,12 +388,17 @@ const updateSelectedTags = (val: string[]) => {
 }
 
 .page-nav-btn {
-  @apply flex items-center justify-center w-8 h-8 rounded-lg;
+  @apply flex items-center justify-center w-9 h-9 rounded-lg;
   @apply bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400;
   @apply border border-gray-200 dark:border-gray-600;
   @apply hover:bg-blue-500 hover:text-white hover:border-blue-500;
   @apply transition-all duration-200 transform hover:scale-105;
   @apply focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700;
+  @apply active:scale-95;
+  /* 添加点击反馈 */
+  /* 触摸友好的最小尺寸 */
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .nav-disabled {
@@ -364,9 +410,13 @@ const updateSelectedTags = (val: string[]) => {
 }
 
 .page-selector {
-  @apply relative flex items-center gap-1 px-3 py-1.5 rounded-lg;
+  @apply relative flex items-center gap-1 px-4 py-2 rounded-lg;
   @apply bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600;
   @apply text-sm font-medium text-gray-700 dark:text-gray-300;
+  @apply hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer;
+  @apply transition-all duration-200;
+  /* 触摸友好尺寸 */
+  min-height: 44px;
 }
 
 .page-info {
@@ -390,9 +440,53 @@ const updateSelectedTags = (val: string[]) => {
   @apply text-right;
 }
 
-/* 文章网格 */
+/* 文章网格 - 响应式优化 */
 .article-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  @apply grid gap-6;
+  /* 默认桌面端：3列 */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+/* 大屏幕：确保最多3列 */
+@media (min-width: 1280px) {
+  .article-grid {
+    @apply grid-cols-3;
+  }
+}
+
+/* 中等屏幕：2列 */
+@media (max-width: 1024px) and (min-width: 768px) {
+  .article-grid {
+    @apply grid-cols-2;
+    gap: 1.25rem;
+    /* 5 */
+  }
+}
+
+/* 平板竖屏：2列紧凑 */
+@media (max-width: 768px) and (min-width: 640px) {
+  .article-grid {
+    @apply grid-cols-2;
+    gap: 1rem;
+    /* 4 */
+  }
+}
+
+/* 手机屏幕：单列 */
+@media (max-width: 640px) {
+  .article-grid {
+    @apply grid-cols-1;
+    gap: 0.75rem;
+    /* 3 */
+  }
+}
+
+/* 超小屏幕：单列更紧凑 */
+@media (max-width: 480px) {
+  .article-grid {
+    gap: 0.5rem;
+    /* 2 */
+  }
 }
 
 /* 文章卡片动画 */
@@ -418,10 +512,35 @@ const updateSelectedTags = (val: string[]) => {
   @apply focus:outline-none focus:ring-4 focus:ring-red-200;
 }
 
-/* 响应式设计 */
+.retry-btn:hover .iconify {
+  animation: spin 0.5s ease-in-out;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 响应式设计 - 平板设备 */
+@media (max-width: 1024px) {
+  .article-grid {
+    @apply grid-cols-1 md:grid-cols-2 gap-5;
+  }
+
+  .smart-header {
+    @apply p-6;
+  }
+}
+
+/* 响应式设计 - 中等屏幕 */
 @media (max-width: 768px) {
   .smart-header {
-    @apply flex-col items-stretch gap-4 p-6;
+    @apply flex-col items-stretch gap-4 p-5;
   }
 
   .header-left {
@@ -429,19 +548,89 @@ const updateSelectedTags = (val: string[]) => {
   }
 
   .header-left>div {
-    @apply flex-col space-x-0 space-y-4 items-start;
+    @apply flex-col space-x-0 space-y-3 items-start;
   }
 
   .main-title-section h1 {
-    @apply text-2xl;
+    @apply text-2xl leading-tight;
+  }
+
+  .main-title-section p {
+    @apply text-xs;
   }
 
   .stats-section h2 {
     @apply text-base;
   }
 
+  .stats-section p {
+    @apply text-xs ml-3;
+  }
+
   .header-pagination {
-    @apply flex-row items-center w-full justify-between;
+    @apply flex-row items-center w-full justify-between bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3;
+  }
+
+  .pagination-mini {
+    @apply gap-2;
+  }
+
+  .page-nav-btn {
+    @apply w-8 h-8 text-sm;
+  }
+
+  .page-selector {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .article-grid {
+    @apply grid-cols-1 gap-4;
+  }
+
+  /* 筛选组件优化 */
+  .container {
+    @apply px-3;
+  }
+}
+
+/* 响应式设计 - 小屏幕 */
+@media (max-width: 640px) {
+  .smart-header {
+    @apply p-4 gap-3;
+  }
+
+  .main-title-section h1 {
+    @apply text-xl;
+  }
+
+  .main-title-section p {
+    @apply hidden;
+    /* 在小屏幕隐藏副标题 */
+  }
+
+  .stats-section {
+    @apply mt-1;
+  }
+
+  .stats-section h2 {
+    @apply text-sm;
+  }
+
+  .stats-section p {
+    @apply text-xs ml-2;
+  }
+
+  .header-left>div {
+    @apply space-y-2;
+  }
+
+  /* 隐藏分隔线在小屏幕上 */
+  .header-left>div>div:nth-child(2) {
+    @apply hidden;
+  }
+
+  .header-pagination {
+    @apply p-2 text-xs;
   }
 
   .pagination-mini {
@@ -453,34 +642,63 @@ const updateSelectedTags = (val: string[]) => {
   }
 
   .page-selector {
-    @apply px-2 py-1 text-xs;
+    @apply px-2 py-1 text-xs min-w-[60px];
   }
 
+  .page-info-text {
+    @apply text-xs;
+  }
+
+  /* 容器优化 */
+  .container {
+    @apply px-2;
+  }
+
+  /* 文章网格优化 */
   .article-grid {
-    @apply gap-4;
+    @apply gap-3;
   }
 }
 
-@media (max-width: 640px) {
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
   .smart-header {
-    @apply p-4;
+    @apply p-3;
   }
 
   .main-title-section h1 {
-    @apply text-xl;
+    @apply text-lg;
   }
 
-  .stats-section {
-    @apply mt-2;
+  .stats-section h2 {
+    @apply text-xs;
   }
 
-  .header-left>div {
-    @apply space-y-3;
-  }
-
-  /* 隐藏分隔线在小屏幕上 */
-  .header-left>div>div:nth-child(2) {
+  .stats-section p {
     @apply hidden;
+    /* 隐藏详细统计信息 */
+  }
+
+  .header-pagination {
+    @apply flex-col gap-2 p-2;
+  }
+
+  .pagination-mini {
+    @apply w-full justify-center;
+  }
+
+  .page-info-text {
+    @apply text-center;
+  }
+
+  /* 简化页面边距 */
+  .container {
+    @apply px-1 py-4;
+  }
+
+  /* 筛选组件简化 */
+  .backdrop-blur-sm {
+    @apply p-4;
   }
 }
 
@@ -495,9 +713,84 @@ const updateSelectedTags = (val: string[]) => {
   }
 }
 
-/* 滚动平滑 */
+/* 滚动平滑 - 移动端优化 */
 html {
   scroll-behavior: smooth;
+}
+
+/* 移动端滚动条优化 */
+@media (max-width: 768px) {
+  * {
+    scrollbar-width: thin;
+  }
+
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 2px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.7);
+  }
+}
+
+/* 触摸优化 */
+@media (hover: none) and (pointer: coarse) {
+
+  /* 移除桌面端的 hover 效果，改为 active */
+  .page-nav-btn:hover {
+    @apply bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400;
+    @apply border-gray-200 dark:border-gray-600 scale-100;
+  }
+
+  .page-nav-btn:active {
+    @apply bg-blue-500 text-white border-blue-500;
+  }
+
+  .page-selector:hover {
+    @apply bg-gray-50 dark:bg-gray-700;
+  }
+
+  .page-selector:active {
+    @apply bg-gray-100 dark:bg-gray-600;
+  }
+
+  /* 文章卡片触摸优化 */
+  .article-card-animated:active {
+    transform: scale(0.98);
+  }
+}
+
+/* 移动端容器优化 */
+.mobile-optimized {
+  @apply transition-all duration-300;
+}
+
+@media (max-width: 768px) {
+  .mobile-optimized {
+    @apply px-3 py-6;
+  }
+}
+
+@media (max-width: 640px) {
+  .mobile-optimized {
+    @apply px-2 py-4;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-optimized {
+    @apply px-1 py-3;
+  }
 }
 
 /* 过渡动画 */

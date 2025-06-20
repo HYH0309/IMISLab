@@ -117,6 +117,27 @@ const onImageError = (event: Event) => {
   @apply rounded-2xl;
 }
 
+/* 移动端卡片链接优化 */
+@media (max-width: 768px) {
+  .article-card-link {
+    @apply hover:transform-none hover:scale-100;
+    @apply active:scale-[0.97];
+    @apply rounded-xl;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .article-card-link {
+    @apply hover:transform-none hover:scale-100;
+  }
+
+  .article-card-link:active {
+    @apply scale-[0.97];
+    transition: transform 0.1s ease-out;
+  }
+}
+
 /* 文章卡片主体 */
 .article-card {
   @apply relative overflow-hidden rounded-2xl;
@@ -129,11 +150,46 @@ const onImageError = (event: Event) => {
   @apply backdrop-blur-sm;
 }
 
+/* 移动端卡片主体优化 */
+@media (max-width: 768px) {
+  .article-card {
+    @apply rounded-xl border shadow-md;
+    @apply hover:shadow-lg hover:shadow-gray-200/40 dark:hover:shadow-gray-900/40;
+  }
+}
+
+@media (max-width: 480px) {
+  .article-card {
+    @apply rounded-lg border shadow-sm;
+    @apply hover:shadow-md;
+  }
+}
+
 /* 封面容器 */
 .cover-container {
   @apply relative w-full h-48 overflow-hidden;
   @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50;
   @apply dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30;
+}
+
+/* 移动端封面容器优化 */
+@media (max-width: 768px) {
+  .cover-container {
+    @apply h-40;
+  }
+}
+
+@media (max-width: 480px) {
+  .cover-container {
+    @apply h-36;
+  }
+}
+
+/* 横屏模式封面优化 */
+@media (max-width: 896px) and (orientation: landscape) and (max-height: 500px) {
+  .cover-container {
+    @apply h-32;
+  }
 }
 
 /* 封面图片 */
@@ -142,6 +198,21 @@ const onImageError = (event: Event) => {
   @apply hover:scale-110 hover:brightness-110;
   @apply opacity-0;
   will-change: transform, opacity;
+}
+
+/* 移动端封面图片优化 */
+@media (max-width: 768px) {
+  .cover-image {
+    @apply hover:scale-105 hover:brightness-105;
+    @apply transition-all duration-300;
+  }
+}
+
+/* 触摸设备封面图片优化 */
+@media (hover: none) and (pointer: coarse) {
+  .cover-image {
+    @apply hover:scale-100 hover:brightness-100;
+  }
 }
 
 /* 默认封面 */
@@ -158,9 +229,33 @@ const onImageError = (event: Event) => {
   @apply shadow-lg;
 }
 
+/* 移动端默认封面图标优化 */
+@media (max-width: 768px) {
+  .default-cover-icon {
+    @apply mb-2 p-2;
+  }
+
+  .default-cover-icon svg {
+    @apply w-6 h-6;
+  }
+}
+
 .default-cover-text {
   @apply text-sm font-medium text-gray-600 dark:text-gray-300;
   @apply line-clamp-2 leading-relaxed;
+}
+
+/* 移动端默认封面文本优化 */
+@media (max-width: 768px) {
+  .default-cover-text {
+    @apply text-xs leading-tight px-2;
+  }
+}
+
+@media (max-width: 480px) {
+  .default-cover-text {
+    @apply text-xs leading-tight px-1;
+  }
 }
 
 /* 封面遮罩 */
@@ -178,6 +273,19 @@ const onImageError = (event: Event) => {
   @apply p-6 space-y-4;
 }
 
+/* 移动端内容区域优化 */
+@media (max-width: 768px) {
+  .content-area {
+    @apply p-4 space-y-3;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-area {
+    @apply p-3 space-y-2.5;
+  }
+}
+
 /* 文章标题 */
 .article-header {
   @apply space-y-3;
@@ -190,9 +298,42 @@ const onImageError = (event: Event) => {
   @apply hover:text-blue-600 dark:hover:text-blue-400;
 }
 
+/* 移动端文章标题优化 */
+@media (max-width: 768px) {
+  .article-title {
+    @apply text-lg leading-snug;
+  }
+}
+
+@media (max-width: 480px) {
+  .article-title {
+    @apply text-base leading-snug;
+  }
+}
+
+/* 触摸设备标题优化 */
+@media (hover: none) and (pointer: coarse) {
+  .article-title {
+    @apply hover:text-gray-900 dark:hover:text-white;
+  }
+}
+
 /* 标签容器 */
 .tags-container {
   @apply flex flex-wrap items-center gap-2;
+}
+
+/* 移动端标签容器优化 */
+@media (max-width: 768px) {
+  .tags-container {
+    @apply gap-1.5;
+  }
+}
+
+@media (max-width: 480px) {
+  .tags-container {
+    @apply gap-1;
+  }
 }
 
 .tag-item {
@@ -206,10 +347,48 @@ const onImageError = (event: Event) => {
   @apply dark:hover:from-blue-800/60 dark:hover:to-indigo-800/60;
 }
 
+/* 移动端标签项优化 */
+@media (max-width: 768px) {
+  .tag-item {
+    @apply px-2 py-1 text-xs;
+    @apply hover:scale-100 hover:shadow-sm;
+    @apply rounded-md;
+  }
+}
+
+@media (max-width: 480px) {
+  .tag-item {
+    @apply px-1.5 py-0.5 text-xs;
+    @apply rounded;
+  }
+}
+
+/* 触摸设备标签优化 */
+@media (hover: none) and (pointer: coarse) {
+  .tag-item {
+    @apply hover:scale-100 hover:shadow-none;
+    @apply hover:from-blue-100 hover:to-indigo-100;
+    @apply dark:hover:from-blue-900/50 dark:hover:to-indigo-900/50;
+  }
+}
+
 .tag-more {
   @apply px-2 py-1 text-xs font-medium rounded-full;
   @apply bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400;
   @apply border border-gray-200 dark:border-gray-600;
+}
+
+/* 移动端标签更多优化 */
+@media (max-width: 768px) {
+  .tag-more {
+    @apply px-1.5 py-0.5 text-xs rounded-md;
+  }
+}
+
+@media (max-width: 480px) {
+  .tag-more {
+    @apply px-1 py-0.5 text-xs rounded;
+  }
 }
 
 /* 文章元信息 */
@@ -219,12 +398,38 @@ const onImageError = (event: Event) => {
   @apply pt-3 border-t border-gray-100 dark:border-gray-700;
 }
 
+/* 移动端元信息优化 */
+@media (max-width: 768px) {
+  .article-meta {
+    @apply text-xs pt-2.5;
+  }
+}
+
+@media (max-width: 480px) {
+  .article-meta {
+    @apply text-xs pt-2 flex-wrap gap-1;
+  }
+}
+
 .meta-item {
   @apply flex items-center space-x-1.5;
 }
 
 .meta-icon {
   @apply w-4 h-4 opacity-70;
+}
+
+/* 移动端元信息图标优化 */
+@media (max-width: 768px) {
+  .meta-icon {
+    @apply w-3.5 h-3.5;
+  }
+}
+
+@media (max-width: 480px) {
+  .meta-icon {
+    @apply w-3 h-3;
+  }
 }
 
 .meta-divider {
@@ -242,26 +447,33 @@ const onImageError = (event: Event) => {
   @apply scale-x-100;
 }
 
-/* 响应式适配 */
-@media (max-width: 640px) {
+/* 高分屏优化 */
+@media (min-width: 1440px) {
+  .article-card {
+    @apply rounded-3xl;
+  }
+
   .cover-container {
-    @apply h-40;
+    @apply h-56;
   }
 
   .content-area {
-    @apply p-4 space-y-3;
+    @apply p-8 space-y-5;
   }
 
   .article-title {
-    @apply text-lg;
+    @apply text-2xl;
+  }
+}
+
+/* 触摸设备全局优化 */
+@media (hover: none) and (pointer: coarse) {
+  .article-card:hover .cover-overlay {
+    @apply opacity-0;
   }
 
-  .tags-container {
-    @apply gap-1.5;
-  }
-
-  .tag-item {
-    @apply px-2 py-1 text-xs;
+  .article-card:hover .hover-indicator {
+    @apply scale-x-0;
   }
 }
 
