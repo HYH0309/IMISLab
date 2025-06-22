@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, readonly, ref } from 'vue'
 
 interface KeyboardControlsOptions {
   onPlay?: () => void
@@ -20,16 +20,40 @@ export default function useKeyboardControls(options: KeyboardControlsOptions = {
     onVolumeDown,
     onMute,
     seekAmount = 5,
-    disabled = false,
+    disabled: initialDisabled = false,
   } = options
 
+  // 使用 ref 来控制启用/禁用状态
+  const isEnabled = ref(!initialDisabled)
+
   const handleKeyboard = (e: KeyboardEvent) => {
-    // 如果禁用或者输入框处于焦点状态，则跳过
-    if (
-      disabled ||
-      document.activeElement?.tagName === 'INPUT' ||
-      document.activeElement?.tagName === 'TEXTAREA'
-    ) {
+    if (!isEnabled.value) {
+      return
+    }
+
+    const activeElement = document.activeElement as HTMLElement
+
+    // 检测是否在可编辑元素中
+    const isInEditableElement =
+      activeElement?.tagName === 'INPUT' ||
+      activeElement?.tagName === 'TEXTAREA' ||
+      activeElement?.contentEditable === 'true' ||
+      // CodeMirror 6 (vue-codemirror)
+      activeElement?.closest('.cm-editor') ||
+      activeElement?.closest('.cm-content') ||
+      activeElement?.closest('.cm-focused') ||
+      // 其他代码编辑器
+      activeElement?.closest('.codemirror') ||
+      activeElement?.closest('.monaco-editor') ||
+      activeElement?.closest('.ace_editor') ||
+      // 通用可编辑区域
+      activeElement?.getAttribute('role') === 'textbox' ||
+      activeElement?.closest('[role="textbox"]') ||
+      // 如果你知道OJ编辑器的具体类名，可以添加
+      activeElement?.closest('.oj-code-editor') ||
+      activeElement?.closest('#code-editor')
+
+    if (isInEditableElement) {
       return
     }
 
@@ -69,7 +93,20 @@ export default function useKeyboardControls(options: KeyboardControlsOptions = {
     document.removeEventListener('keydown', handleKeyboard)
   })
 
+  // 返回控制方法
   return {
-    // 可以返回一些控制方法，如动态启用/禁用
+    isEnabled: readonly(isEnabled),
+    enable: () => {
+      isEnabled.value = true
+    },
+    disable: () => {
+      isEnabled.value = false
+    },
+    toggle: () => {
+      isEnabled.value = !isEnabled.value
+    },
+    setEnabled: (enabled: boolean) => {
+      isEnabled.value = enabled
+    },
   }
 }

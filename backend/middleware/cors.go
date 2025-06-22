@@ -12,7 +12,7 @@ import (
 // SetupCORS 设置跨域中间件
 func SetupCORS() gin.HandlerFunc {
 	return cors.New(cors.Config{
-		AllowOrigins:     []string{"*"}, // 在生产环境中应该指定具体的域名
+		AllowOrigins:     []string{"www.hyh0209.cn"}, // 在生产环境中应该指定具体的域名
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},

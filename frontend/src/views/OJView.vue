@@ -205,13 +205,12 @@ const currentLanguageInfo = computed(() => {
 })
 
 const codemirrorExtensions = computed(() => {
-  const extensions = [currentLanguageInfo.value.extension]
+  const extensions: any[] = [currentLanguageInfo.value.extension]
 
-  // 注意：oneDark 主题暂时注释掉，可以根据需要启用
-  // const isDark = false // 可以从主题状态获取
-  // if (isDark) {
-  //   extensions.push(oneDark)
-  // }
+  const isDark = false // 可以从主题状态获取
+  if (isDark) {
+    extensions.push(oneDark)
+  }
 
   return extensions
 })

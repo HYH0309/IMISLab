@@ -54,14 +54,6 @@ onUnmounted(() => {
   <div class="music-player-wrapper desktop-player fixed bottom-4 left-4" :style="{ zIndex: Z_INDEX.MUSIC_PLAYER }">
     <audio ref="audioRef" hidden controls></audio>
 
-    <!-- 歌曲信息卡片 -->
-    <transition name="slide-up">
-      <div v-if="playerState.isPlaying" class="song-info mb-2">
-        <div class="text-sm font-medium text-text truncate">{{ playerState.currentSong?.name || '未知歌曲' }}</div>
-        <div class="text-xs text-text/60 truncate">{{ playerState.currentSong?.artist || '未知艺术家' }}</div>
-      </div>
-    </transition>
-
     <motion.div class="player-container" :animate="currentRotation" :class="{ 'dragging': isDragging }">
       <!-- 唱片图像 -->
       <div class="player-disc">
@@ -179,21 +171,6 @@ onUnmounted(() => {
 
 /* 原有的桌面端播放器样式 */
 
-.song-info {
-  @apply bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border/50;
-  @apply max-w-48 md:max-w-52 sm:max-w-36 sm:px-2 sm:py-1.5;
-}
-
-/* 移动端歌曲信息调整 */
-@media (max-width: 640px) {
-  .song-info .text-sm {
-    @apply text-xs;
-  }
-
-  .song-info .text-xs {
-    @apply text-[10px];
-  }
-}
 
 .slide-up-enter-active,
 .slide-up-leave-active {

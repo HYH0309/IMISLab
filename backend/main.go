@@ -19,6 +19,12 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: .env file not found")
 	}
+	// 根据环境变量设置Gin模式
+	mode := os.Getenv("GIN_MODE")
+	if mode == "" {
+		mode = gin.ReleaseMode // 默认为发行模式
+	}
+	gin.SetMode(mode)
 
 	// 初始化数据库
 	config.InitDB()
