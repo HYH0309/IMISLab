@@ -3,6 +3,8 @@ package middleware
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -11,8 +13,10 @@ import (
 
 // SetupCORS 设置跨域中间件
 func SetupCORS() gin.HandlerFunc {
+	origins := os.Getenv("CORS_ALLOW_ORIGINS")
+	allowOrigins := strings.Split(origins, ",")
 	return cors.New(cors.Config{
-		AllowOrigins:     []string{"www.hyh0209.cn"}, // 在生产环境中应该指定具体的域名
+		AllowOrigins:     allowOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
