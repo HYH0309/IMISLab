@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AdminModal: typeof import('./src/components/admin/AdminModal.vue')['default']
+    AIAssistant: typeof import('./src/components/AIAssistant.vue')['default']
     ArticleCard: typeof import('./src/components/article/ArticleCard.vue')['default']
     ArticleComments: typeof import('./src/components/article/ArticleComments.vue')['default']
     ArticleFilter: typeof import('./src/components/article/ArticleFilter.vue')['default']

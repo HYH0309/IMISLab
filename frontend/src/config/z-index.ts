@@ -14,6 +14,7 @@ export const Z_INDEX = {
   TOOLTIP: 20,
   PROGRESS_BAR: 25,
   THEME_TOGGLE: 30,
+  AI_ASSISTANT: 31, // AI助手在主题切换器上方
   MUSIC_PLAYER: 35, // 音乐播放器在导航栏下方
   NAVBAR: 40, // 导航栏在音乐播放器上方
 
@@ -48,6 +49,7 @@ export const Z_INDEX_VARS = {
   '--z-tooltip': Z_INDEX.TOOLTIP,
   '--z-progress-bar': Z_INDEX.PROGRESS_BAR,
   '--z-theme-toggle': Z_INDEX.THEME_TOGGLE,
+  '--z-ai-assistant': Z_INDEX.AI_ASSISTANT,
   '--z-navbar': Z_INDEX.NAVBAR,
   '--z-music-player': Z_INDEX.MUSIC_PLAYER,
   '--z-modal-backdrop': Z_INDEX.MODAL_BACKDROP,
