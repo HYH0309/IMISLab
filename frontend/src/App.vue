@@ -5,6 +5,7 @@ import { Z_INDEX_VARS } from '@/config/z-index'
 import MusicPlayer from '@/components/MusicPlayer.vue'
 import NavBar from '@/components/NavBar.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import AIAssistant from '@/components/AIAssistant.vue'
 
 // 状态管理
 const themeStore = useThemeStore()
@@ -71,6 +72,9 @@ provide('handleError', handleGlobalError)
     <!-- 固定UI组件 - 中层 -->
     <!-- 主题切换器 - z-index: 30 -->
     <ThemeToggle />
+
+    <!-- AI助手 - z-index: 31 -->
+    <AIAssistant />
 
     <!-- 导航栏 - z-index: 40 -->
     <NavBar />
