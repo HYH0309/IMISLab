@@ -479,7 +479,7 @@ import shbAvatar from '@/assets/shb.jpg'
                           祖传屎山
                         </div>
                       </div>
-                      <a href="https://github.com/HYH0309/student-management" target="_blank" class="github-link">
+                      <a href="https://github.com/HYH0309/student-manage-system" target="_blank" class="github-link">
                         <GlobeAltIcon class="w-4 h-4" />
                       </a>
                     </div>

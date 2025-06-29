@@ -1,3 +1,164 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import {
+  CheckIcon,
+  XMarkIcon,
+  EllipsisHorizontalIcon,
+  ChevronDownIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  TrashIcon,
+  ArrowDownTrayIcon,
+  PencilIcon,
+  DocumentDuplicateIcon,
+  ArchiveBoxIcon
+} from '@heroicons/vue/24/outline'
+import BaseModal from '../composable/BaseModal.vue'
+import type { BatchOperation, BatchOperationResult } from '@/composables/useBatchOperations'
+
+// Props 定义
+interface Props {
+  selectedCount: number
+  totalCount: number
+  operations: BatchOperation[]
+  isProcessing: boolean
+  progress: {
+    current: number
+    total: number
+    currentItem: string
+    stage: string
+  }
+  operationResult?: BatchOperationResult | null
+  alwaysShow?: boolean
+  showSelectAll?: boolean
+  maxVisibleOperations?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  alwaysShow: false,
+  showSelectAll: true,
+  maxVisibleOperations: 3
+})
+
+// Emits 定义
+const emit = defineEmits<{
+  'execute-operation': [operation: BatchOperation]
+  'select-all': []
+  'clear-selection': []
+  'cancel-operation': []
+}>()
+
+// 响应式状态
+const showMoreMenu = ref(false)
+const showProgressDialog = ref(false)
+const currentOperation = ref<BatchOperation | null>(null)
+const dropdownRef = ref<HTMLElement>()
+
+// 计算属性
+const hasSelection = computed(() => props.selectedCount > 0)
+const isAllSelected = computed(() => props.selectedCount === props.totalCount)
+
+const availableOperations = computed(() =>
+  props.operations.slice(0, props.maxVisibleOperations)
+)
+
+const moreOperations = computed(() =>
+  props.operations.slice(props.maxVisibleOperations)
+)
+
+const progressPercentage = computed(() => {
+  if (props.progress.total === 0) return 0
+  return Math.round((props.progress.current / props.progress.total) * 100)
+})
+
+const selectedItems = computed(() => {
+  // 这里需要从父组件获取实际的选中项目
+  return []
+})
+
+// 图标映射
+const iconMap = {
+  trash: TrashIcon,
+  download: ArrowDownTrayIcon,
+  edit: PencilIcon,
+  copy: DocumentDuplicateIcon,
+  archive: ArchiveBoxIcon
+}
+
+const getOperationIcon = (iconName?: string) => {
+  return iconMap[iconName as keyof typeof iconMap] || PencilIcon
+}
+
+// 方法
+const handleSelectAll = () => {
+  emit('select-all')
+}
+
+const executeOperation = (operation: BatchOperation) => {
+  currentOperation.value = operation
+  showMoreMenu.value = false
+  showProgressDialog.value = true
+  emit('execute-operation', operation)
+}
+
+const cancelCurrentOperation = () => {
+  emit('cancel-operation')
+}
+
+const getStageText = (stage: string): string => {
+  const stageTexts = {
+    preparing: '准备中...',
+    processing: '处理中...',
+    cleanup: '清理中...',
+    completed: '已完成'
+  }
+  return stageTexts[stage as keyof typeof stageTexts] || '处理中...'
+}
+
+interface DisplayableItem {
+  name?: string
+  title?: string
+  label?: string
+  id?: string | number
+}
+
+const getItemDisplayName = (item: DisplayableItem): string => {
+  return item?.name || item?.title || item?.label || item?.id?.toString() || '未知项目'
+}
+
+// 点击外部关闭下拉菜单
+const handleClickOutside = (event: Event) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+    showMoreMenu.value = false
+  }
+}
+
+// 监听器
+watch(() => props.isProcessing, (isProcessing) => {
+  if (!isProcessing && props.operationResult) {
+    // 操作完成，保持对话框打开显示结果
+    setTimeout(() => {
+      if (!props.isProcessing) {
+        // 如果没有错误，自动关闭对话框
+        if (props.operationResult?.success) {
+          setTimeout(() => {
+            showProgressDialog.value = false
+          }, 2000)
+        }
+      }
+    }, 1000)
+  }
+})
+
+// 生命周期
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+</script>
 <template>
   <!-- 批量操作工具栏 -->
   <div v-if="hasSelection || alwaysShow" class="batch-toolbar" :class="[
@@ -193,167 +354,7 @@
   </BaseModal>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import {
-  CheckIcon,
-  XMarkIcon,
-  EllipsisHorizontalIcon,
-  ChevronDownIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  TrashIcon,
-  ArrowDownTrayIcon,
-  PencilIcon,
-  DocumentDuplicateIcon,
-  ArchiveBoxIcon
-} from '@heroicons/vue/24/outline'
-import BaseModal from '../composable/BaseModal.vue'
-import type { BatchOperation, BatchOperationResult } from '@/composables/useBatchOperations'
 
-// Props 定义
-interface Props {
-  selectedCount: number
-  totalCount: number
-  operations: BatchOperation[]
-  isProcessing: boolean
-  progress: {
-    current: number
-    total: number
-    currentItem: string
-    stage: string
-  }
-  operationResult?: BatchOperationResult | null
-  alwaysShow?: boolean
-  showSelectAll?: boolean
-  maxVisibleOperations?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  alwaysShow: false,
-  showSelectAll: true,
-  maxVisibleOperations: 3
-})
-
-// Emits 定义
-const emit = defineEmits<{
-  'execute-operation': [operation: BatchOperation]
-  'select-all': []
-  'clear-selection': []
-  'cancel-operation': []
-}>()
-
-// 响应式状态
-const showMoreMenu = ref(false)
-const showProgressDialog = ref(false)
-const currentOperation = ref<BatchOperation | null>(null)
-const dropdownRef = ref<HTMLElement>()
-
-// 计算属性
-const hasSelection = computed(() => props.selectedCount > 0)
-const isAllSelected = computed(() => props.selectedCount === props.totalCount)
-
-const availableOperations = computed(() =>
-  props.operations.slice(0, props.maxVisibleOperations)
-)
-
-const moreOperations = computed(() =>
-  props.operations.slice(props.maxVisibleOperations)
-)
-
-const progressPercentage = computed(() => {
-  if (props.progress.total === 0) return 0
-  return Math.round((props.progress.current / props.progress.total) * 100)
-})
-
-const selectedItems = computed(() => {
-  // 这里需要从父组件获取实际的选中项目
-  return []
-})
-
-// 图标映射
-const iconMap = {
-  trash: TrashIcon,
-  download: ArrowDownTrayIcon,
-  edit: PencilIcon,
-  copy: DocumentDuplicateIcon,
-  archive: ArchiveBoxIcon
-}
-
-const getOperationIcon = (iconName?: string) => {
-  return iconMap[iconName as keyof typeof iconMap] || PencilIcon
-}
-
-// 方法
-const handleSelectAll = () => {
-  emit('select-all')
-}
-
-const executeOperation = (operation: BatchOperation) => {
-  currentOperation.value = operation
-  showMoreMenu.value = false
-  showProgressDialog.value = true
-  emit('execute-operation', operation)
-}
-
-const cancelCurrentOperation = () => {
-  emit('cancel-operation')
-}
-
-const getStageText = (stage: string): string => {
-  const stageTexts = {
-    preparing: '准备中...',
-    processing: '处理中...',
-    cleanup: '清理中...',
-    completed: '已完成'
-  }
-  return stageTexts[stage as keyof typeof stageTexts] || '处理中...'
-}
-
-interface DisplayableItem {
-  name?: string
-  title?: string
-  label?: string
-  id?: string | number
-}
-
-const getItemDisplayName = (item: DisplayableItem): string => {
-  return item?.name || item?.title || item?.label || item?.id?.toString() || '未知项目'
-}
-
-// 点击外部关闭下拉菜单
-const handleClickOutside = (event: Event) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
-    showMoreMenu.value = false
-  }
-}
-
-// 监听器
-watch(() => props.isProcessing, (isProcessing) => {
-  if (!isProcessing && props.operationResult) {
-    // 操作完成，保持对话框打开显示结果
-    setTimeout(() => {
-      if (!props.isProcessing) {
-        // 如果没有错误，自动关闭对话框
-        if (props.operationResult?.success) {
-          setTimeout(() => {
-            showProgressDialog.value = false
-          }, 2000)
-        }
-      }
-    }, 1000)
-  }
-})
-
-// 生命周期
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-</script>
 
 <style scoped>
 .batch-toolbar {

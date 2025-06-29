@@ -64,6 +64,18 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  {
+    path: '/ai-compact-demo',
+    name: 'AICompactDemo',
+    component: () => import('@/views/AICompactDemo.vue'),
+    meta: { transition: 'fade' },
+  },
+  {
+    path: '/ai-comparison',
+    name: 'AIComparison',
+    component: () => import('@/views/AIDisplayComparison.vue'),
+    meta: { transition: 'fade' },
+  },
   // 404页面 - 放在最后，捕获所有未匹配的路由
   {
     path: '/:pathMatch(.*)*',

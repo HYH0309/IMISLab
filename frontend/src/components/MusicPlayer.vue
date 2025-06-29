@@ -51,7 +51,7 @@ onUnmounted(() => {
 
 <template>
   <!-- 桌面端音乐播放器 -->
-  <div class="music-player-wrapper desktop-player fixed bottom-4 left-4" :style="{ zIndex: Z_INDEX.MUSIC_PLAYER }">
+  <div class="music-player-wrapper desktop-player fixed bottom-4 right-4" :style="{ zIndex: Z_INDEX.MUSIC_PLAYER }">
     <audio ref="audioRef" hidden controls></audio>
 
     <motion.div class="player-container" :animate="currentRotation" :class="{ 'dragging': isDragging }">

@@ -10,6 +10,11 @@ declare module 'vue' {
   export interface GlobalComponents {
     AdminModal: typeof import('./src/components/admin/AdminModal.vue')['default']
     AIAssistant: typeof import('./src/components/AIAssistant.vue')['default']
+    AIAssistantModal: typeof import('./src/components/AIAssistantModal.vue')['default']
+    AIAssistantSidebar: typeof import('./src/components/AIAssistantSidebar.vue')['default']
+    AiBubble: typeof import('./src/components/common/AiBubble.vue')['default']
+    AiBubbleExample: typeof import('./src/components/common/AiBubbleExample.vue')['default']
+    AiBubbleStreamExample: typeof import('./src/components/common/AiBubbleStreamExample.vue')['default']
     ArticleCard: typeof import('./src/components/article/ArticleCard.vue')['default']
     ArticleComments: typeof import('./src/components/article/ArticleComments.vue')['default']
     ArticleFilter: typeof import('./src/components/article/ArticleFilter.vue')['default']
@@ -44,6 +49,7 @@ declare module 'vue' {
     SortCanvas: typeof import('./src/components/sort/SortCanvas.vue')['default']
     SortControlPanel: typeof import('./src/components/sort/SortControlPanel.vue')['default']
     SortStatus: typeof import('./src/components/sort/SortStatus.vue')['default']
+    SparkAIExample: typeof import('./src/components/common/SparkAIExample.vue')['default']
     ThemeToggle: typeof import('./src/components/ThemeToggle.vue')['default']
     VirtualList: typeof import('./src/components/common/VirtualList.vue')['default']
   }
